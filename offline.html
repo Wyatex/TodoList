@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>简单的Todo-List</title>
+    <!-- 引入样式 -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/element-ui@2.15.1/lib/theme-chalk/index.css"
+    />
+    <!-- 引入组件库 -->
+    <!-- <script src="https://unpkg.com/ityped@1.0.3"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/element-ui@2.15.1/lib/index.js"></script>
+    <!-- 用户样式 -->
+    <style>
+      body {
+        margin: 0;
+        height: 100vh;
+      }
+
+      #app {
+        height: 100%;
+      }
+
+      .header {
+        background-color: #fff;
+        height: 52px;
+        box-shadow: 0 2px 4px rgba(10, 10, 10, 0.1);
+        width: 100%;
+        position: fixed;
+        z-index: 100;
+      }
+
+      .header .header-inner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 100%;
+      }
+
+      .header .top-nav {
+        padding: 10px;
+        display: flex;
+        align-items: center;
+      }
+
+      .header .top-nav .nav-btn {
+        margin-right: 2rem;
+      }
+
+      .header .top-nav .logo span {
+        font-size: 1.5rem;
+        margin-right: 2rem;
+      }
+
+      .main-content {
+        z-index: 1;
+        display: flex;
+        height: 100%;
+        overflow-y: hidden;
+      }
+
+      .main-content .top-menu-item {
+        margin-top: 60px;
+      }
+
+      .main-content .el-menu-vertical-demo {
+        height: 100%;
+      }
+
+      .main-content .el-menu-vertical-demo:not(.el-menu--collapse) {
+        width: 200px;
+      }
+
+      .main-content .content-body {
+        flex: 1;
+        background-color: #fafafa;
+      }
+
+      .main-content .addProject {
+        display: flex;
+      }
+
+      .main-content .addProject .addingBody {
+        width: 100%;
+        margin-top: 90px;
+        margin-left: 160px;
+      }
+
+      .main-content .addProject .addingBody .title {
+        width: 500px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+      }
+
+      .main-content .addProject .addingBody .form-data .el-form {
+        width: 500px;
+      }
+
+      .addProject .addingBody .el-select {
+        width: 100%;
+      }
+
+      .addProject .addingBody .form-data .btnDiv {
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .main-content .todo-body {
+        height: 100%;
+        padding-left: 30px;
+        padding-top: 70px;
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .main-content .todo-body .col-list {
+        display: flex;
+        height: 80%;
+        overflow: auto;
+        margin-top: 1rem;
+        display: flex;
+      }
+
+      .main-content .todo-body .col-list .col-item {
+        width: 310px;
+        min-width: 310px;
+        margin-right: 20px;
+      }
+
+      .main-content .todo-body .col-list .col-item .add-card {
+        width: 100%;
+        margin-bottom: 20px;
+      }
+
+      .main-content .todo-body .col-list .todo-list {
+        height: auto;
+      }
+
+      .main-content .todo-body .col-list .todo-list .todo-item {
+        width: 100%;
+        margin-bottom: 20px;
+      }
+
+      .main-content .todo-body .col-list .todo-list .todo-item .todo-text {
+        display: flex;
+        align-items: center;
+        width: 195px;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+
+      .main-content .todo-body .col-list .add-col {
+        width: 310px;
+        min-width: 310px;
+      }
+
+      .main-content .todo-body .col-list .add-col .add-column-inner {
+        height: 160px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        border: 2px dashed #ddd;
+        border-radius: 10px;
+        justify-content: center;
+        align-items: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="header">
+        <div class="header-inner">
+          <div class="top-nav">
+            <div class="logo"><span>Todo List</span></div>
+            <div class="nav-btn">
+              <el-button type="text" @click="collapse"
+                >{{menuBtnStatus}}</el-button
+              >
+            </div>
+            <div class="nav-btn">
+              <el-button type="text">保存</el-button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="main-content">
+        <div class="navbar">
+          <el-menu
+            class="el-menu-vertical-demo"
+            :collapse="isCollapse"
+            default-active="2-1"
+            @select="handleSelect"
+          >
+            <el-menu-item index="1" class="top-menu-item">
+              <i class="el-icon-circle-plus"></i>
+              <span slot="title">添加计划</span>
+            </el-menu-item>
+            <el-submenu index="2">
+              <template slot="title">
+                <i class="el-icon-menu"></i>
+                <span slot="title">已有计划</span>
+              </template>
+              <el-menu-item
+                v-for="(item, index) in projects"
+                :index="`2-${index+1}`"
+                >{{item.name}}</el-menu-item
+              >
+            </el-submenu>
+            <el-menu-item index="3">
+              <i class="el-icon-s-tools"></i>
+              <span slot="title">设置</span>
+            </el-menu-item>
+          </el-menu>
+        </div>
+        <div class="content-body addProject" v-if="inAdding">
+          <div class="addingBody">
+            <div class="title">
+              <h3>创建一个新的项目栏</h3>
+              <span>通过一个计划项目，协调、跟踪、更新你的工作。</span>
+            </div>
+            <div class="form-data">
+              <el-form>
+                <el-form-item label="项目面板名">
+                  <el-input v-model="projectForm.name"></el-input>
+                </el-form-item>
+                <el-form-item label="项目描述">
+                  <el-input
+                    type="textarea"
+                    v-model="projectForm.desc"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="选择模板">
+                  <el-select
+                    v-model="projectForm.template"
+                    placeholder="选择模板"
+                  >
+                    <el-option
+                      v-for="item in projectTemplate"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                      style="width: 500px; height: auto"
+                    >
+                      <h4
+                        style="
+                          height: 10px;
+                          margin-block-start: 0;
+                          margin-block-end: 1.2rem;
+                        "
+                      >
+                        {{item.label}}
+                      </h4>
+                      <span
+                        style="
+                          display: block;
+                          white-space: normal;
+                          line-height: 20px;
+                        "
+                        >{{item.desc}}</span
+                      >
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item class="btnDiv">
+                  <el-button type="primary" @click="addProject"
+                    >立即创建</el-button
+                  >
+                </el-form-item>
+              </el-form>
+            </div>
+          </div>
+        </div>
+        <div class="content-body todo-body" v-if="inTodo">
+          <div class="title">
+            <h3 style="margin-block-start: 0; margin-block-end: 1rem">
+              {{projects[currentProject]['name']}}
+            </h3>
+            <span>{{projects[currentProject]['desc']}}</span>
+          </div>
+          <div class="col-list">
+            <div
+              class="col-item"
+              v-for="(item,colIndex) in projects[currentProject].info"
+            >
+              <el-card shadow="hover">
+                <div
+                  slot="header"
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                  "
+                >
+                  <div class="title">
+                    <h4 style="margin-block-start: 0; margin-block-end: 0">
+                      {{item.column}}
+                    </h4>
+                  </div>
+                  <div class="btn-menu">
+                    <el-dropdown
+                      split-button
+                      size="mini"
+                      @click="toAddItem(colIndex)"
+                    >
+                      添加项
+                      <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item>修改栏</el-dropdown-item>
+                        <el-dropdown-item>删除栏</el-dropdown-item>
+                        <el-dropdown-item>清空栏</el-dropdown-item>
+                      </el-dropdown-menu>
+                    </el-dropdown>
+                  </div>
+                </div>
+                <div class="todo-list">
+                  <el-card shadow="hover" v-if="item.inAdding" class="add-card">
+                    <el-form>
+                      <el-form-item>
+                        <el-input v-model="newTodo" type="textarea"></el-input>
+                      </el-form-item>
+                      <el-form-item style="display: flex">
+                        <el-button type="primary" @click="addItem(colIndex)">
+                          添加
+                        </el-button>
+                        <el-button @click="item.inAdding = false">
+                          取消
+                        </el-button>
+                      </el-form-item>
+                    </el-form>
+                  </el-card>
+                  <el-card
+                    v-for="(todoItem, itemIndex) in item.item"
+                    class="todo-item"
+                    :body-style="{width: '100%', display: 'flex', justifyContent: 'flex-start',height: 'auto'}"
+                    shadow="hover"
+                  >
+                    <span class="todo-text">{{todoItem}}</span>
+                    <el-button
+                      icon="el-icon-delete"
+                      circle
+                      style="height: 40px; margin-left: 5px"
+                      @click="delItem(colIndex, itemIndex)"
+                    ></el-button>
+                  </el-card>
+                </div>
+              </el-card>
+            </div>
+            <div class="add-col">
+              <el-card shadow="hover" style="height: 200px">
+                <div
+                  class="add-column-inner"
+                  @click="dialogAddColumnVisible = true"
+                >
+                  <i
+                    class="el-icon-circle-plus-outline"
+                    style="font-size: 60px; color: #888"
+                  ></i>
+                  <span style="color: #888">添加栏</span>
+                </div>
+                <el-dialog
+                  title="添加栏"
+                  :visible.sync="dialogAddColumnVisible"
+                >
+                  <el-form>
+                    <el-form-item label="栏名称">
+                      <el-input
+                        v-model="newColumnName"
+                        autocomplete="off"
+                      ></el-input>
+                    </el-form-item>
+                  </el-form>
+                  <div slot="footer" class="dialog-footer">
+                    <el-button @click="dialogAddColumnVisible = false"
+                      >取 消</el-button
+                    >
+                    <el-button type="primary" @click="addColumn"
+                      >确 定</el-button
+                    >
+                  </div>
+                </el-dialog>
+              </el-card>
+            </div>
+          </div>
+        </div>
+        <div class="content-body setting" v-if="inSetting">
+          <el-card></el-card>
+        </div>
+      </div>
+      <div class="footer"></div>
+    </div>
+    <script>
+      let vue = new Vue({
+        el: '#app',
+        data: {
+          isCollapse: true,
+          menuBtnStatus: '展开菜单',
+          inAdding: false,
+          inTodo: true,
+          inSetting: false,
+          currentProject: 0,
+          newTodo: '',
+          newColumnName: '',
+          dialogAddColumnVisible: false,
+          projectTemplate: [
+            {
+              value: 'blank',
+              label: '空白看板',
+              desc: '从一个完全空白的项目板开始，您可以自己添加列和进行设置。',
+            },
+            {
+              value: 'basic',
+              label: '基本的看板',
+              desc: '基本的看板：选择这个模板，将会默认添加：”代办事项“、”进行中“和“完成”三列。',
+            },
+          ],
+          projectForm: {
+            name: '',
+            desc: '',
+            template: '',
+          },
+          projects: [
+            {
+              name: '学习',
+              desc: 'blahblahblah...',
+              info: [
+                {
+                  column: '代办事项',
+                  inAdding: false,
+                  item: ['阅读', '写作'],
+                },
+                {
+                  column: '进行中',
+                  inAdding: false,
+                  item: ['听力练习'],
+                },
+                {
+                  column: '已完成',
+                  inAdding: false,
+                  item: ['练字'],
+                },
+              ],
+            },
+          ],
+        },
+        methods: {
+          collapse() {
+            if (this.isCollapse === true) {
+              this.isCollapse = false
+              this.menuBtnStatus = '收起菜单'
+            } else {
+              this.isCollapse = true
+              this.menuBtnStatus = '展开菜单'
+            }
+          },
+          handleSelect(key, keyPath) {
+            if (key === '1') {
+              this.inAdding = true
+              this.inTodo = false
+              this.inSetting = false
+            } else if (key === '3') {
+              this.inAdding = false
+              this.inTodo = false
+              this.inSetting = true
+            } else if (key.substring(0, 1) === '2') {
+              this.currentProject = Number(key.substring(2)) - 1
+              this.inAdding = false
+              this.inTodo = true
+              this.inSetting = false
+              console.log(this.currentProject)
+            }
+          },
+          addProject() {
+            if (this.projectForm.name === '') {
+              ELEMENT.Message({
+                message: '请先输入项目面板名再添加',
+                type: 'error',
+              })
+              return
+            } else if (this.projectForm.template === '') {
+              ELEMENT.Message({
+                message: '请先选择一个模板再添加',
+                type: 'error',
+              })
+              return
+            }
+            if (this.projectForm.template === 'basic') {
+              this.projects.push({
+                name: this.projectForm.name,
+                desc: this.projectForm.desc,
+                info: [
+                  {
+                    column: '代办事项',
+                    inAdding: false,
+                    item: [],
+                  },
+                  {
+                    column: '进行中',
+                    inAdding: false,
+                    item: [],
+                  },
+                  {
+                    column: '已完成',
+                    inAdding: false,
+                    item: [],
+                  },
+                ],
+              })
+            } else if (this.projectForm.template === 'blank') {
+              this.projects.push({
+                name: this.projectForm.name,
+                desc: this.projectForm.desc,
+                info: [],
+              })
+            }
+            this.projectForm = {
+              name: '',
+              desc: '',
+              template: '',
+            }
+            this.handleSelect('2-' + this.projects.length)
+          },
+          toAddItem(index) {
+            this.projects[this.currentProject].info[index].inAdding = true
+          },
+          addColumn() {
+            if (this.newColumnName === '') {
+              ELEMENT.Message({
+                message: '请先输入栏名称再添加',
+                type: 'error',
+              })
+              return
+            }
+            this.projects[this.currentProject].info.push({
+              column: this.newColumnName,
+              inAdding: false,
+              item: [],
+            })
+            this.newColumnName = ''
+            this.dialogAddColumnVisible = false
+          },
+          addItem(index) {
+            if (this.newTodo === '') {
+              ELEMENT.Message({
+                message: '请先输入内容再添加',
+                type: 'error',
+              })
+              return
+            }
+            this.projects[this.currentProject].info[index].item.push(
+              this.newTodo
+            )
+            this.projects[this.currentProject].info[index].inAdding = false
+            this.newTodo = ''
+          },
+          delItem(colIndex, itemIndex) {
+            this.projects[this.currentProject].info[colIndex].item.splice(
+              itemIndex,
+              1
+            )
+          },
+        },
+        created() {},
+      })
+    </script>
+  </body>
+</html>

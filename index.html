@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>简单的Todo-List</title>
+    <!-- 引入样式 -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/element-ui@2.15.1/lib/theme-chalk/index.css"
+    />
+    <!-- 引入组件库 -->
+    <!-- <script src="https://unpkg.com/ityped@1.0.3"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/ityped@1.0.3/dist/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/element-ui@2.15.1/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/three.js/r56/three.min.js"></script>
+    <!-- 自定义样式表 -->
+    <style>
+      :root {
+        background-color: #f6f6f6;
+      }
+
+      body {
+        height: 100vh;
+        margin: 0;
+      }
+
+      #bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 2;
+      }
+
+      #app {
+        position: fixed;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+        z-index: 3;
+      }
+
+      .a {
+        text-decoration: none;
+        color: #8590a6;
+      }
+
+      .header {
+        background-color: #fff;
+        height: 52px;
+        box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1);
+      }
+
+      .header .header-inner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 100%;
+      }
+
+      .l-nav {
+        padding: 10px;
+        display: flex;
+        align-items: center;
+      }
+
+      .l-nav .logo span {
+        font-size: 1.5rem;
+        margin-right: 2rem;
+      }
+
+      .r-nav {
+        display: flex;
+        align-items: center;
+      }
+
+      .r-nav .login {
+        margin: 0 20px;
+      }
+
+      .r-nav .register {
+        margin-right: 20px;
+      }
+
+      .main {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        flex: 1;
+      }
+
+      .main .title {
+        font-size: 6rem;
+        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        margin-bottom: 3rem;
+      }
+
+      .main .discription {
+        margin-bottom: 3rem;
+      }
+
+      .main .discription span {
+        font-size: 2rem;
+        color: rgba(108, 108, 108, 0.8);
+      }
+
+      .main .useTodoList {
+        border-radius: 5px;
+        padding: 1rem;
+        background-color: #fff;
+        box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1);
+        animation: btn-left 0.5s ease 1;
+        animation-fill-mode: forwards;
+      }
+
+      .main .useTodoList:hover {
+        animation: btn-hover 0.5s ease 1;
+        animation-fill-mode: forwards;
+      }
+
+      .introduce {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        flex: 1;
+        overflow: auto;
+      }
+
+      .introduce .aboutMe {
+        width: 50%;
+      }
+
+      @media screen and (max-width: 500px) {
+        .main .title {
+            font-size: 4rem;
+        }
+
+        .introduce .aboutMe {
+            margin-top: 650px;
+            margin-bottom: 60px;
+            width: 90%;
+        }
+      }
+
+      .loginRegister {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex: 1;
+      }
+
+      .loginRegister .head {
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .loginRegister .head span {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 3rem;
+      }
+
+      .loginRegister .form .title {
+        font-size: 1.3rem;
+        text-align: center;
+      }
+
+      .loginRegister .form .control-btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .loginRegister .form .nav {
+        display: flex;
+        justify-content: center;
+        color: rgba(0, 0, 255, 0.3);
+        cursor: pointer;
+      }
+
+      .footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+      }
+
+      .footer,
+      .footer .copyright {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .footer .other {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .footer .other {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .footer .other .heart {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #heart {
+        animation: icon-animate 1.33s ease-in-out infinite;
+      }
+
+      @keyframes btn-hover {
+        from {
+          box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1);
+        }
+        to {
+          box-shadow: 0 3px 6px rgba(10, 10, 10, 0.2);
+        }
+      }
+
+      @keyframes btn-left {
+        from {
+          box-shadow: 0 3px 6px rgba(10, 10, 10, 0.2);
+        }
+        to {
+          box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1);
+        }
+      }
+
+      @keyframes icon-animate {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+
+        10%,
+        30% {
+          transform: scale(0.9);
+        }
+
+        20%,
+        40%,
+        60%,
+        80% {
+          transform: scale(1.1);
+        }
+
+        50%,
+        70% {
+          transform: scale(1.1);
+        }
+      }
+
+      .fade-enter-active,
+      .fade-leave-active {
+        transition: opacity 0.5s;
+        position: absolute;
+        width: 100%;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, calc(-50% + 26px));
+      }
+      .fade-enter,
+      .fade-leave-to {
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="bg"></div>
+    <div id="app">
+      <div class="header">
+        <div class="header-inner">
+          <div class="l-nav">
+            <div class="logo"><span>Todo List</span></div>
+            <div class="info">
+              <a class="a" href="#" @click="switchTo" id="stop">{{topNav}}</a>
+            </div>
+          </div>
+          <div class="r-nav">
+            <div class="login">
+              <el-popover
+                placement="top-start"
+                width="200"
+                trigger="hover"
+                content="需要先登录才能使用TodoList功能哦。"
+              >
+                <a class="a" href="#" slot="reference" @click="toLogin">登录</a>
+              </el-popover>
+            </div>
+            <div class="register">
+              <el-popover
+                placement="top-start"
+                width="200"
+                trigger="hover"
+                content="还没有账号吗？来注册一个吧。"
+              >
+                <a class="a" href="#" slot="reference" @click="toRegister"
+                  >注册</a
+                >
+              </el-popover>
+            </div>
+          </div>
+        </div>
+      </div>
+      <transition name="fade">
+        <div class="main" v-if="inMain">
+          <div class="title"><span>TodoList.io</span></div>
+          <div class="discription"><span id="type"></span></div>
+          <a href="#" class="a" @click="toRegister">
+            <span class="useTodoList">注册并使用</span>
+          </a>
+          <a href="/offline.html" class="a" style="margin-top: 3rem">
+            <span class="useTodoList">使用离线版</span>
+          </a>
+          <span style="margin-top: 2rem; color: #8590a6"
+            >离线版使用较新的PWA技术，需要使用Chrome70+或者FireFox70+的浏览器</span
+          >
+        </div>
+      </transition>
+      <transition name="fade">
+        <div class="introduce" v-if="inIntroduce">
+          <div class="aboutMe">
+            <el-card style="margin-top: 2rem">
+              <div slot="header" class="clearfix">
+                <span>关于TodoList</span>
+                <el-button
+                  style="float: right; padding: 3px 0"
+                  type="text"
+                  @click="toMyBlog"
+                  >我的博客</el-button
+                >
+              </div>
+              <div class="text item">
+                类似的TodoList网页在百度都能找到，但是大部分都比较简陋，所以我打算写一个完善一点的todolist网页。<br />
+                提供的功能有分栏管理，比如生活上的、工作上的，这个应用可以将他们分成几个栏目，每个栏目有三个板块，分别是：未开始、进行中、已完成。<br />
+                可以向每个未完成的板块添加todo
+                item，添加进去的item可以拖动到进行中或者已完成板块，或者拖到垃圾桶进行删除。<br />
+                这个灵感来自Github的Projects功能，也是一个类似todo
+                list的功能，而且它还有一些其他的功能，但是我觉得这个应用并不是需要那些功能。
+              </div>
+            </el-card>
+          </div>
+        </div>
+      </transition>
+      <transition name="fade">
+        <el-row class="loginRegister" v-if="inLogin">
+          <el-col :lg="8" :md="10" :xs="16">
+            <div class="head"><span>TodoList.io</span></div>
+            <el-card class="form">
+              <el-form :rules="rules" ref="form" :model="ruleForm">
+                <el-form-item label="用户名" prop="username">
+                  <el-input
+                    v-model="ruleForm.username"
+                    placeholder="请输入用户名"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="密码" prop="password">
+                  <el-input
+                    v-model="ruleForm.password"
+                    placeholder="请输入密码"
+                    type="password"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item
+                  label="确认密码"
+                  prop="confirmPassword"
+                  v-if="inRegister"
+                >
+                  <el-input
+                    v-model="ruleForm.confirmPassword"
+                    placeholder="请输入密码"
+                    type="password"
+                  ></el-input>
+                </el-form-item>
+                <div class="control" v-if="!inRegister">
+                  <div class="control-btn">
+                    <el-button type="primary">登录</el-button>
+                    <el-button @click="reset">重置</el-button>
+                  </div>
+                  <div class="nav" @click="toRegister">
+                    <span>还没有账号，注册一个吧！</span>
+                  </div>
+                </div>
+                <div class="control" v-if="inRegister">
+                  <div class="control-btn">
+                    <el-button type="primary">注册</el-button>
+                    <el-button @click="reset">重置</el-button>
+                  </div>
+                  <div class="nav" @click="toLogin">
+                    <span>前往登录！</span>
+                  </div>
+                </div>
+              </el-form>
+            </el-card>
+          </el-col>
+        </el-row>
+      </transition>
+      <div class="footer">
+        <div class="copyright">© 2021 Wyatex All rights Reserved.</div>
+        <div class="other">
+          用
+          <div class="heart">
+            <svg
+              t="1619336871602"
+              id="heart"
+              viewBox="0 0 1024 1024"
+              version="1.1"
+              xmlns="http://www.w3.org/2000/svg"
+              p-id="2123"
+              width="15"
+              height="15"
+            >
+              <path
+                fill="red"
+                d="M958.815 439.177c0-167.342-112.526-303-251.334-303-63.099 0-120.73 28.073-164.854 74.385-13.235 13.892-35.632 13.02-47.836-1.786-45.524-55.232-108.584-89.431-178.274-89.431-138.807 0-251.334 135.657-251.334 303 0 57.363 16.638 109.439 36.2 156.726C166.56 736.62 434.876 868.96 498.448 898.503a31.977 31.977 0 0 0 27.031-0.023c49.845-23.313 226.385-110.128 333.756-217.802 57.888-58.051 99.58-142.9 99.58-241.501z"
+                fill=""
+                p-id="2124"
+              ></path>
+            </svg>
+          </div>
+          制作
+        </div>
+      </div>
+    </div>
+    <script>
+      
+      let vm = null
+      let vue = new Vue({
+        el: '#app',
+        data: {
+          topNav: '介绍',
+          inMain: true,
+          inIntroduce: false,
+          inLogin: false,
+          inRegister: false,
+          ruleForm: {
+            username: '',
+            password: '',
+            confirmPassword: '',
+          },
+
+          registerType: false,
+          rules: {
+            username: [
+              { required: true, message: '请输入用户名', trigger: 'blur' },
+              {
+                min: 5,
+                max: 16,
+                message: '长度在 5 到 16 个字符',
+                trigger: 'blur',
+              },
+            ],
+            password: [
+              { required: true, message: '请输入密码', trigger: 'blur' },
+              {
+                min: 8,
+                max: 16,
+                message: '长度在 8 到 16 个字符',
+                trigger: 'blur',
+              },
+            ],
+            confirmPassword: [
+              {
+                validator: function (rule, value, callback) {
+                    console.log(this)
+                  if (value === '') {
+                    callback(new Error('请再次输入密码'))
+                  } else if (value !== vm.ruleForm.password) {
+                    callback(new Error('两次输入密码不一致!'))
+                  } else {
+                    callback()
+                  }
+                },
+                trigger: 'blur',
+              },
+            ],
+          },
+        },
+        created: function() {
+            vm = this
+        },
+        methods: {
+          switchTo() {
+            if (this.inMain) {
+              this.inIntroduce = true
+              this.inMain = false
+              this.inLogin = false
+              this.inRegister = false
+              this.topNav = '主页'
+            } else {
+              this.inIntroduce = false
+              this.inMain = true
+              this.inLogin = false
+              this.inRegister = false
+              this.topNav = '介绍'
+            }
+          },
+          toLogin() {
+            this.inIntroduce = false
+            this.inMain = false
+            this.inLogin = true
+            this.inRegister = false
+            this.topNav = '主页'
+          },
+          toRegister() {
+            this.inIntroduce = false
+            this.inMain = false
+            this.inLogin = true
+            this.inRegister = true
+            this.topNav = '主页'
+          },
+          toMyBlog() {
+            window.open('https://wyatex.gitee.io')
+          },
+          reset() {
+            this.$refs['form'].resetFields()
+          },
+        },
+      })
+
+      function typeInit() {
+        ityped.init('#type', {
+          strings: [
+            '这是一个简洁的TodoList应用',
+            '但是并不简陋',
+            '点击下面按钮开始使用吧',
+            '或者点击左上方的介绍查看使用方法',
+          ],
+          startDelay: 500,
+          backDelay: 1000,
+          loop: true,
+        })
+      }
+      typeInit()
+
+      let SEPARATION = 100,
+        AMOUNTX = 50,
+        AMOUNTY = 50
+
+      let container
+      let camera, scene, renderer
+
+      let particles,
+        particle,
+        count = 0
+
+      let mouseX = 0,
+        mouseY = 0
+
+      let windowHalfX = window.innerWidth / 2
+      let windowHalfY = window.innerHeight / 2
+
+      function onWindowResize() {
+        windowHalfX = window.innerWidth / 2
+        windowHalfY = window.innerHeight / 2
+        camera.aspect = window.innerWidth / window.innerHeight
+        camera.updateProjectionMatrix()
+        renderer.setSize(window.innerWidth, window.innerHeight)
+      }
+
+      function onDocumentMouseMove(event) {
+        mouseX = event.clientX - windowHalfX
+        mouseY = event.clientY - windowHalfY
+      }
+
+      function onDocumentTouchStart(event) {
+        if (event.touches.length === 1) {
+          event.preventDefault()
+          mouseX = event.touches[0].pageX - windowHalfX
+          mouseY = event.touches[0].pageY - windowHalfY
+        }
+      }
+
+      function onDocumentTouchMove(event) {
+        if (event.touches.length === 1) {
+          event.preventDefault()
+          mouseX = event.touches[0].pageX - windowHalfX
+          mouseY = event.touches[0].pageY - windowHalfY
+        }
+      }
+
+      function animate() {
+        requestAnimationFrame(animate)
+        render()
+      }
+
+      function render() {
+        camera.position.x += (mouseX - camera.position.x) * 0.05
+        camera.position.y += (-mouseY - camera.position.y) * 0.05
+        camera.lookAt(scene.position)
+        var i = 0
+        for (var ix = 0; ix < AMOUNTX; ix++) {
+          for (var iy = 0; iy < AMOUNTY; iy++) {
+            particle = particles[i++]
+            particle.position.y =
+              Math.sin((ix + count) * 0.3) * 50 +
+              Math.sin((iy + count) * 0.5) * 50
+            particle.scale.x = particle.scale.y =
+              (Math.sin((ix + count) * 0.3) + 1) * 2 +
+              (Math.sin((iy + count) * 0.5) + 1) * 2
+          }
+        }
+        renderer.render(scene, camera)
+        count += 0.1
+      }
+
+      function init(dom) {
+        container = dom
+        camera = new THREE.PerspectiveCamera(
+          75,
+          window.innerWidth / window.innerHeight,
+          1,
+          10000
+        )
+        camera.position.z = 1000
+        scene = new THREE.Scene()
+        particles = new Array()
+        var PI2 = Math.PI * 2
+        var material = new THREE.ParticleCanvasMaterial({
+          color: '#999',
+          program: function (context) {
+            context.beginPath()
+            context.arc(0, 0, 1, 0, PI2, true)
+            context.fill()
+          },
+        })
+        var i = 0
+        for (var ix = 0; ix < AMOUNTX; ix++) {
+          for (var iy = 0; iy < AMOUNTY; iy++) {
+            particle = particles[i++] = new THREE.Particle(material)
+            particle.position.x = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2
+            particle.position.z = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2
+            scene.add(particle)
+          }
+        }
+        renderer = new THREE.CanvasRenderer()
+        renderer.setSize(window.innerWidth, window.innerHeight)
+        container.appendChild(renderer.domElement)
+        document.addEventListener('mousemove', onDocumentMouseMove, false)
+        document.addEventListener('touchstart', onDocumentTouchStart, false)
+        document.addEventListener('touchmove', onDocumentTouchMove, false)
+        window.addEventListener('resize', onWindowResize, false)
+      }
+
+      let renderAnimation = (container) => {
+        init(container)
+        animate()
+      }
+      let domContainer = document.getElementById('bg')
+      renderAnimation(domContainer)
+
+
+      function stopAnimation() {
+        document.body.removeChild(document.getElementById('bg'))
+      }
+    </script>
+  </body>
+</html>
