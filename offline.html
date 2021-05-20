@@ -11,9 +11,10 @@
       href="https://cdn.jsdelivr.net/npm/element-ui@2.15.1/lib/theme-chalk/index.css"
     />
     <!-- 引入组件库 -->
-    <!-- <script src="https://unpkg.com/ityped@1.0.3"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/element-ui@2.15.1/lib/index.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sortablejs@1.8.4/Sortable.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.20.0/vuedraggable.umd.min.js"></script>
     <!-- 用户样式 -->
     <style>
       body {
@@ -140,6 +141,13 @@
 
       .main-content .todo-body .col-list .todo-list {
         height: auto;
+        min-height: 95px;
+      }
+
+      .main-content .todo-body .col-list .todo-list .drag > span {
+        min-width: 260px;
+        min-height: 95px;
+        display: block;
       }
 
       .main-content .todo-body .col-list .todo-list .todo-item {
@@ -184,7 +192,7 @@
               >
             </div>
             <div class="nav-btn">
-              <el-button type="text">保存</el-button>
+              <el-button type="text" @click="saveData">保存</el-button>
             </div>
           </div>
         </div>
@@ -311,8 +319,8 @@
                       添加项
                       <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item>修改栏</el-dropdown-item>
-                        <el-dropdown-item>删除栏</el-dropdown-item>
-                        <el-dropdown-item>清空栏</el-dropdown-item>
+                        <el-dropdown-item @click.native="delCol(colIndex)">删除栏</el-dropdown-item>
+                        <el-dropdown-item @click.native="clearCol(colIndex)">清空栏</el-dropdown-item>
                       </el-dropdown-menu>
                     </el-dropdown>
                   </div>
@@ -333,20 +341,26 @@
                       </el-form-item>
                     </el-form>
                   </el-card>
-                  <el-card
-                    v-for="(todoItem, itemIndex) in item.item"
-                    class="todo-item"
-                    :body-style="{width: '100%', display: 'flex', justifyContent: 'flex-start',height: 'auto'}"
-                    shadow="hover"
-                  >
-                    <span class="todo-text">{{todoItem}}</span>
-                    <el-button
-                      icon="el-icon-delete"
-                      circle
-                      style="height: 40px; margin-left: 5px"
-                      @click="delItem(colIndex, itemIndex)"
-                    ></el-button>
-                  </el-card>
+
+                  <draggable v-model="item.item" group="todo-body" class="drag">
+                    <transition-group>
+                      <el-card
+                        v-for="(todoItem, itemIndex) in item.item"
+                        class="todo-item"
+                        :body-style="{width: '100%', display: 'flex', justifyContent: 'flex-start',height: 'auto'}"
+                        shadow="hover"
+                        :key="itemIndex"
+                      >
+                        <span class="todo-text">{{todoItem}}</span>
+                        <el-button
+                          icon="el-icon-delete"
+                          circle
+                          style="height: 40px; margin-left: 5px"
+                          @click="delItem(colIndex, itemIndex)"
+                        ></el-button>
+                      </el-card>
+                    </transition-group>
+                  </draggable>
                 </div>
               </el-card>
             </div>
@@ -423,29 +437,7 @@
             desc: '',
             template: '',
           },
-          projects: [
-            {
-              name: '学习',
-              desc: 'blahblahblah...',
-              info: [
-                {
-                  column: '代办事项',
-                  inAdding: false,
-                  item: ['阅读', '写作'],
-                },
-                {
-                  column: '进行中',
-                  inAdding: false,
-                  item: ['听力练习'],
-                },
-                {
-                  column: '已完成',
-                  inAdding: false,
-                  item: ['练字'],
-                },
-              ],
-            },
-          ],
+          projects: [],
         },
         methods: {
           collapse() {
@@ -563,8 +555,60 @@
               1
             )
           },
+          delCol(colIndex) {
+            this.projects[this.currentProject].info.splice(
+              colIndex,
+              1
+            )
+          },
+          clearCol(colIndex) {
+            this.projects[this.currentProject].info[colIndex].item = []
+          },
+          logData() {
+            console.log(this.projects[0].info)
+          },
+          saveData() {
+            let dataString = JSON.stringify(this.projects)
+            localStorage.setItem('data', dataString)
+            ELEMENT.Message({
+              message: '保存成功',
+              type: 'success',
+            })
+          },
         },
-        created() {},
+        created() {
+          let data = localStorage.getItem('data')
+          if (data === null) {
+            this.projects = [
+              {
+                name: '默认项目',
+                desc: 'blahblahblah...',
+                info: [
+                  {
+                    column: '代办事项',
+                    inAdding: false,
+                    item: [
+                      '点击添加项添加代办事项',
+                      '点击右边的垃圾桶按钮可以删除项',
+                    ],
+                  },
+                  {
+                    column: '进行中',
+                    inAdding: false,
+                    item: ['长按卡片可以拖动到其他的栏'],
+                  },
+                  {
+                    column: '已完成',
+                    inAdding: false,
+                    item: [],
+                  },
+                ],
+              },
+            ]
+            return
+          }
+          this.projects = JSON.parse(data)
+        },
       })
     </script>
   </body>
