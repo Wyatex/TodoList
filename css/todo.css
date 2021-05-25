@@ -1,0 +1,176 @@
+body {
+  margin: 0;
+  height: 100vh;
+}
+
+#app {
+  height: 100%;
+}
+
+.header {
+  background-color: #fff;
+  height: 52px;
+  box-shadow: 0 2px 4px rgba(10, 10, 10, 0.1);
+  width: 100%;
+  position: fixed;
+  z-index: 100;
+}
+
+.header .header-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+
+.header .top-nav {
+  padding: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.header .top-nav .nav-btn {
+  margin-right: 2rem;
+}
+
+.header .top-nav .logo span {
+  font-size: 1.5rem;
+  margin-right: 2rem;
+}
+
+.main-content {
+  z-index: 1;
+  display: flex;
+  height: 100%;
+  overflow-y: hidden;
+}
+
+.main-content .top-menu-item {
+  margin-top: 60px;
+}
+
+.main-content .el-menu-vertical-demo {
+  height: 100%;
+}
+
+.main-content .el-menu-vertical-demo:not(.el-menu--collapse) {
+  width: 200px;
+}
+
+.main-content .content-body {
+  flex: 1;
+  background-color: #fafafa;
+}
+
+.main-content .addProject {
+  display: flex;
+}
+
+.main-content .addProject .addingBody {
+  width: 100%;
+  margin-top: 90px;
+  margin-left: 160px;
+}
+
+.main-content .addProject .addingBody .title {
+  width: 500px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+.main-content .addProject .addingBody .form-data .el-form {
+  width: 500px;
+}
+
+.addProject .addingBody .el-select {
+  width: 100%;
+}
+
+.addProject .addingBody .form-data .btnDiv {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.main-content .todo-body {
+  height: 100%;
+  padding-left: 30px;
+  padding-top: 70px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content .todo-body .title {
+    display: flex;
+    align-items: center;
+}
+
+.main-content .todo-body .title .edit-title {
+    margin-left: 3rem;
+}
+
+.main-content .todo-body .col-list {
+  display: flex;
+  height: 80%;
+  overflow: auto;
+  margin-top: 1rem;
+  display: flex;
+}
+
+.main-content .todo-body .col-list .col-item {
+  width: 310px;
+  min-width: 310px;
+  margin-right: 20px;
+}
+
+.main-content .todo-body .col-list .col-item .add-card {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.main-content .todo-body .col-list .todo-list {
+  height: auto;
+  min-height: 95px;
+}
+
+.main-content .todo-body .col-list .todo-list .drag > span {
+  min-width: 260px;
+  min-height: 95px;
+  display: block;
+}
+
+.main-content .todo-body .col-list .todo-list .todo-item {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.main-content .todo-body .col-list .todo-list .todo-item .todo-text {
+  display: flex;
+  align-items: center;
+  width: 195px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.main-content .todo-body .col-list .add-col {
+  width: 310px;
+  min-width: 310px;
+}
+
+.main-content .todo-body .col-list .add-col .add-column-inner {
+  height: 160px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  border: 2px dashed #ddd;
+  border-radius: 10px;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.main-content .setting {
+    margin-top: 60px;
+    margin-left: 50px;
+}

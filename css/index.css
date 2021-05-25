@@ -1,0 +1,265 @@
+:root {
+  background-color: #f6f6f6;
+}
+
+body {
+  height: 100vh;
+  margin: 0;
+}
+
+#bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 2;
+}
+
+#app {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  z-index: 3;
+}
+
+.a {
+  text-decoration: none;
+  color: #8590a6;
+}
+
+.header {
+  background-color: #fff;
+  height: 52px;
+  box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1);
+}
+
+.header .header-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+
+.l-nav {
+  padding: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.l-nav .logo span {
+  font-size: 1.5rem;
+  margin-right: 2rem;
+}
+
+.r-nav {
+  display: flex;
+  align-items: center;
+}
+
+.r-nav .login {
+  margin: 0 20px;
+}
+
+.r-nav .register {
+  margin-right: 20px;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+}
+
+.main .title {
+  font-size: 6rem;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  margin-bottom: 3rem;
+}
+
+.main .discription {
+  margin-bottom: 3rem;
+}
+
+.main .discription span {
+  font-size: 2rem;
+  color: rgba(108, 108, 108, 0.8);
+}
+
+.main .useTodoList {
+  border-radius: 5px;
+  padding: 1rem;
+  background-color: #fff;
+  box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1);
+  animation: btn-left 0.5s ease 1;
+  animation-fill-mode: forwards;
+}
+
+.main .useTodoList:hover {
+  animation: btn-hover 0.5s ease 1;
+  animation-fill-mode: forwards;
+}
+
+.introduce {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  overflow: auto;
+}
+
+.introduce .aboutMe {
+  width: 50%;
+}
+
+@media screen and (max-width: 500px) {
+  .main .title {
+    font-size: 4rem;
+  }
+
+  .introduce .aboutMe {
+    margin-top: 650px;
+    margin-bottom: 60px;
+    width: 90%;
+  }
+}
+
+.loginRegister {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+}
+
+.loginRegister .head {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loginRegister .head span {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 3rem;
+}
+
+.loginRegister .form .title {
+  font-size: 1.3rem;
+  text-align: center;
+}
+
+.loginRegister .form .control-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.loginRegister .form .nav {
+  display: flex;
+  justify-content: center;
+  color: rgba(0, 0, 255, 0.3);
+  cursor: pointer;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+.footer,
+.footer .copyright {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer .other {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer .other {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer .other .heart {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#heart {
+  animation: icon-animate 1.33s ease-in-out infinite;
+}
+
+@keyframes btn-hover {
+  from {
+    box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1);
+  }
+  to {
+    box-shadow: 0 3px 6px rgba(10, 10, 10, 0.2);
+  }
+}
+
+@keyframes btn-left {
+  from {
+    box-shadow: 0 3px 6px rgba(10, 10, 10, 0.2);
+  }
+  to {
+    box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1);
+  }
+}
+
+@keyframes icon-animate {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  10%,
+  30% {
+    transform: scale(0.9);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: scale(1.1);
+  }
+
+  50%,
+  70% {
+    transform: scale(1.1);
+  }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+  position: absolute;
+  width: 100%;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, calc(-50% + 26px));
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}

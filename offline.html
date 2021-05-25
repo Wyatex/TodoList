@@ -6,179 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>简单的Todo-List</title>
     <!-- 引入样式 -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/element-ui@2.15.1/lib/theme-chalk/index.css"
-    />
+    <link rel="stylesheet" href="./css/element.css" />
+    <link rel="stylesheet" href="./css/todo.css" />
     <!-- 引入组件库 -->
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/element-ui@2.15.1/lib/index.js"></script>
-    <script src="//cdn.jsdelivr.net/npm/sortablejs@1.8.4/Sortable.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.20.0/vuedraggable.umd.min.js"></script>
-    <!-- 用户样式 -->
-    <style>
-      body {
-        margin: 0;
-        height: 100vh;
-      }
-
-      #app {
-        height: 100%;
-      }
-
-      .header {
-        background-color: #fff;
-        height: 52px;
-        box-shadow: 0 2px 4px rgba(10, 10, 10, 0.1);
-        width: 100%;
-        position: fixed;
-        z-index: 100;
-      }
-
-      .header .header-inner {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        height: 100%;
-      }
-
-      .header .top-nav {
-        padding: 10px;
-        display: flex;
-        align-items: center;
-      }
-
-      .header .top-nav .nav-btn {
-        margin-right: 2rem;
-      }
-
-      .header .top-nav .logo span {
-        font-size: 1.5rem;
-        margin-right: 2rem;
-      }
-
-      .main-content {
-        z-index: 1;
-        display: flex;
-        height: 100%;
-        overflow-y: hidden;
-      }
-
-      .main-content .top-menu-item {
-        margin-top: 60px;
-      }
-
-      .main-content .el-menu-vertical-demo {
-        height: 100%;
-      }
-
-      .main-content .el-menu-vertical-demo:not(.el-menu--collapse) {
-        width: 200px;
-      }
-
-      .main-content .content-body {
-        flex: 1;
-        background-color: #fafafa;
-      }
-
-      .main-content .addProject {
-        display: flex;
-      }
-
-      .main-content .addProject .addingBody {
-        width: 100%;
-        margin-top: 90px;
-        margin-left: 160px;
-      }
-
-      .main-content .addProject .addingBody .title {
-        width: 500px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.3);
-        padding-bottom: 10px;
-        margin-bottom: 10px;
-      }
-
-      .main-content .addProject .addingBody .form-data .el-form {
-        width: 500px;
-      }
-
-      .addProject .addingBody .el-select {
-        width: 100%;
-      }
-
-      .addProject .addingBody .form-data .btnDiv {
-        display: flex;
-        justify-content: flex-end;
-      }
-
-      .main-content .todo-body {
-        height: 100%;
-        padding-left: 30px;
-        padding-top: 70px;
-        overflow: auto;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .main-content .todo-body .col-list {
-        display: flex;
-        height: 80%;
-        overflow: auto;
-        margin-top: 1rem;
-        display: flex;
-      }
-
-      .main-content .todo-body .col-list .col-item {
-        width: 310px;
-        min-width: 310px;
-        margin-right: 20px;
-      }
-
-      .main-content .todo-body .col-list .col-item .add-card {
-        width: 100%;
-        margin-bottom: 20px;
-      }
-
-      .main-content .todo-body .col-list .todo-list {
-        height: auto;
-        min-height: 95px;
-      }
-
-      .main-content .todo-body .col-list .todo-list .drag > span {
-        min-width: 260px;
-        min-height: 95px;
-        display: block;
-      }
-
-      .main-content .todo-body .col-list .todo-list .todo-item {
-        width: 100%;
-        margin-bottom: 20px;
-      }
-
-      .main-content .todo-body .col-list .todo-list .todo-item .todo-text {
-        display: flex;
-        align-items: center;
-        width: 195px;
-        white-space: pre-wrap;
-        word-break: break-all;
-      }
-
-      .main-content .todo-body .col-list .add-col {
-        width: 310px;
-        min-width: 310px;
-      }
-
-      .main-content .todo-body .col-list .add-col .add-column-inner {
-        height: 160px;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        border: 2px dashed #ddd;
-        border-radius: 10px;
-        justify-content: center;
-        align-items: center;
-      }
-    </style>
+    <script src="./js/vue.js"></script>
+    <script src="./js/element.js"></script>
+    <script src="./js/sortable.js"></script>
+    <script src="./js/vuedraggable.js"></script>
   </head>
   <body>
     <div id="app">
@@ -286,16 +120,80 @@
         </div>
         <div class="content-body todo-body" v-if="inTodo">
           <div class="title">
-            <h3 style="margin-block-start: 0; margin-block-end: 1rem">
-              {{projects[currentProject]['name']}}
-            </h3>
-            <span>{{projects[currentProject]['desc']}}</span>
+            <div class="title-info">
+              <h3
+                style="
+                  margin-block-start: 0;
+                  margin-block-end: 1rem;
+                  display: block;
+                "
+              >
+                {{projects[currentProject]['name']}}
+              </h3>
+              <span>{{projects[currentProject]['desc']}}</span>
+            </div>
+            <div class="edit-title">
+              <el-popover
+                width="300"
+                trigger="click"
+                placement="bottom"
+                v-model="isEditProjectTitle"
+              >
+                <p>请在下面的输入框中修改。</p>
+                <el-input
+                  v-model="editProject.name"
+                  placeholder="请输入项目名"
+                ></el-input>
+                <el-input
+                  v-model="editProject.desc"
+                  type="textarea"
+                  placeholder="请输入描述"
+                  style="margin-top: 1rem"
+                ></el-input>
+                <div style="text-align: right; margin: 1rem 0 0 0">
+                  <el-button size="mini" type="text" @click="isEditProjectTitle = false"
+                    >取消</el-button
+                  >
+                  <el-button type="primary" size="mini" @click="editProjectTile"
+                    >确定</el-button
+                  >
+                </div>
+                <el-button
+                  slot="reference"
+                  style="border-radius: 20px"
+                  @click="openEditProjectTile"
+                  >修改项目信息</el-button
+                >
+              </el-popover>
+            </div>
           </div>
           <div class="col-list">
             <div
               class="col-item"
               v-for="(item,colIndex) in projects[currentProject].info"
             >
+              <el-dialog
+                title="修改栏名称"
+                :visible.sync="dialogEditColumnVisible"
+                width="30%">
+                <el-input v-model="newColumnName" placeholder="请输入栏名称"></el-input>
+                <span slot="footer" class="dialog-footer">
+                  <el-button @click="dialogEditColumnVisible = false">取 消</el-button>
+                  <el-button type="primary" @click="editCol">确 定</el-button>
+                </span>
+              </el-dialog>
+
+              <el-dialog
+                title="修改项内容"
+                :visible.sync="dialogEditItemVisible"
+                width="50%">
+                <el-input type="textarea" v-model="newItemContent" placeholder="请输入项内容"></el-input>
+                <span slot="footer" class="dialog-footer">
+                  <el-button @click="dialogEditItemVisible = false">取 消</el-button>
+                  <el-button type="primary" @click="editItem">确 定</el-button>
+                </span>
+              </el-dialog>
+
               <el-card shadow="hover">
                 <div
                   slot="header"
@@ -318,9 +216,15 @@
                     >
                       添加项
                       <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item>修改栏</el-dropdown-item>
-                        <el-dropdown-item @click.native="delCol(colIndex)">删除栏</el-dropdown-item>
-                        <el-dropdown-item @click.native="clearCol(colIndex)">清空栏</el-dropdown-item>
+                        <el-dropdown-item @click.native="openEditCol(colIndex)"
+                          >修改栏</el-dropdown-item
+                        >
+                        <el-dropdown-item @click.native="delCol(colIndex)"
+                          >删除栏</el-dropdown-item
+                        >
+                        <el-dropdown-item @click.native="clearCol(colIndex)"
+                          >清空栏</el-dropdown-item
+                        >
                       </el-dropdown-menu>
                     </el-dropdown>
                   </div>
@@ -351,7 +255,7 @@
                         shadow="hover"
                         :key="itemIndex"
                       >
-                        <span class="todo-text">{{todoItem}}</span>
+                        <span class="todo-text" @dblclick="openEditItem(colIndex,itemIndex)">{{todoItem}}</span>
                         <el-button
                           icon="el-icon-delete"
                           circle
@@ -378,6 +282,7 @@
                 </div>
                 <el-dialog
                   title="添加栏"
+                  width="30%"
                   :visible.sync="dialogAddColumnVisible"
                 >
                   <el-form>
@@ -407,209 +312,6 @@
       </div>
       <div class="footer"></div>
     </div>
-    <script>
-      let vue = new Vue({
-        el: '#app',
-        data: {
-          isCollapse: true,
-          menuBtnStatus: '展开菜单',
-          inAdding: false,
-          inTodo: true,
-          inSetting: false,
-          currentProject: 0,
-          newTodo: '',
-          newColumnName: '',
-          dialogAddColumnVisible: false,
-          projectTemplate: [
-            {
-              value: 'blank',
-              label: '空白看板',
-              desc: '从一个完全空白的项目板开始，您可以自己添加列和进行设置。',
-            },
-            {
-              value: 'basic',
-              label: '基本的看板',
-              desc: '基本的看板：选择这个模板，将会默认添加：”代办事项“、”进行中“和“完成”三列。',
-            },
-          ],
-          projectForm: {
-            name: '',
-            desc: '',
-            template: '',
-          },
-          projects: [],
-        },
-        methods: {
-          collapse() {
-            if (this.isCollapse === true) {
-              this.isCollapse = false
-              this.menuBtnStatus = '收起菜单'
-            } else {
-              this.isCollapse = true
-              this.menuBtnStatus = '展开菜单'
-            }
-          },
-          handleSelect(key, keyPath) {
-            if (key === '1') {
-              this.inAdding = true
-              this.inTodo = false
-              this.inSetting = false
-            } else if (key === '3') {
-              this.inAdding = false
-              this.inTodo = false
-              this.inSetting = true
-            } else if (key.substring(0, 1) === '2') {
-              this.currentProject = Number(key.substring(2)) - 1
-              this.inAdding = false
-              this.inTodo = true
-              this.inSetting = false
-              console.log(this.currentProject)
-            }
-          },
-          addProject() {
-            if (this.projectForm.name === '') {
-              ELEMENT.Message({
-                message: '请先输入项目面板名再添加',
-                type: 'error',
-              })
-              return
-            } else if (this.projectForm.template === '') {
-              ELEMENT.Message({
-                message: '请先选择一个模板再添加',
-                type: 'error',
-              })
-              return
-            }
-            if (this.projectForm.template === 'basic') {
-              this.projects.push({
-                name: this.projectForm.name,
-                desc: this.projectForm.desc,
-                info: [
-                  {
-                    column: '代办事项',
-                    inAdding: false,
-                    item: [],
-                  },
-                  {
-                    column: '进行中',
-                    inAdding: false,
-                    item: [],
-                  },
-                  {
-                    column: '已完成',
-                    inAdding: false,
-                    item: [],
-                  },
-                ],
-              })
-            } else if (this.projectForm.template === 'blank') {
-              this.projects.push({
-                name: this.projectForm.name,
-                desc: this.projectForm.desc,
-                info: [],
-              })
-            }
-            this.projectForm = {
-              name: '',
-              desc: '',
-              template: '',
-            }
-            this.handleSelect('2-' + this.projects.length)
-          },
-          toAddItem(index) {
-            this.projects[this.currentProject].info[index].inAdding = true
-          },
-          addColumn() {
-            if (this.newColumnName === '') {
-              ELEMENT.Message({
-                message: '请先输入栏名称再添加',
-                type: 'error',
-              })
-              return
-            }
-            this.projects[this.currentProject].info.push({
-              column: this.newColumnName,
-              inAdding: false,
-              item: [],
-            })
-            this.newColumnName = ''
-            this.dialogAddColumnVisible = false
-          },
-          addItem(index) {
-            if (this.newTodo === '') {
-              ELEMENT.Message({
-                message: '请先输入内容再添加',
-                type: 'error',
-              })
-              return
-            }
-            this.projects[this.currentProject].info[index].item.push(
-              this.newTodo
-            )
-            this.projects[this.currentProject].info[index].inAdding = false
-            this.newTodo = ''
-          },
-          delItem(colIndex, itemIndex) {
-            this.projects[this.currentProject].info[colIndex].item.splice(
-              itemIndex,
-              1
-            )
-          },
-          delCol(colIndex) {
-            this.projects[this.currentProject].info.splice(
-              colIndex,
-              1
-            )
-          },
-          clearCol(colIndex) {
-            this.projects[this.currentProject].info[colIndex].item = []
-          },
-          logData() {
-            console.log(this.projects[0].info)
-          },
-          saveData() {
-            let dataString = JSON.stringify(this.projects)
-            localStorage.setItem('data', dataString)
-            ELEMENT.Message({
-              message: '保存成功',
-              type: 'success',
-            })
-          },
-        },
-        created() {
-          let data = localStorage.getItem('data')
-          if (data === null) {
-            this.projects = [
-              {
-                name: '默认项目',
-                desc: 'blahblahblah...',
-                info: [
-                  {
-                    column: '代办事项',
-                    inAdding: false,
-                    item: [
-                      '点击添加项添加代办事项',
-                      '点击右边的垃圾桶按钮可以删除项',
-                    ],
-                  },
-                  {
-                    column: '进行中',
-                    inAdding: false,
-                    item: ['长按卡片可以拖动到其他的栏'],
-                  },
-                  {
-                    column: '已完成',
-                    inAdding: false,
-                    item: [],
-                  },
-                ],
-              },
-            ]
-            return
-          }
-          this.projects = JSON.parse(data)
-        },
-      })
-    </script>
+    <script src="./js/todo.js"></script>
   </body>
 </html>
