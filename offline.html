@@ -151,7 +151,10 @@
                   style="margin-top: 1rem"
                 ></el-input>
                 <div style="text-align: right; margin: 1rem 0 0 0">
-                  <el-button size="mini" type="text" @click="isEditProjectTitle = false"
+                  <el-button
+                    size="mini"
+                    type="text"
+                    @click="isEditProjectTitle = false"
                     >取消</el-button
                   >
                   <el-button type="primary" size="mini" @click="editProjectTile"
@@ -175,10 +178,16 @@
               <el-dialog
                 title="修改栏名称"
                 :visible.sync="dialogEditColumnVisible"
-                width="30%">
-                <el-input v-model="newColumnName" placeholder="请输入栏名称"></el-input>
+                width="30%"
+              >
+                <el-input
+                  v-model="newColumnName"
+                  placeholder="请输入栏名称"
+                ></el-input>
                 <span slot="footer" class="dialog-footer">
-                  <el-button @click="dialogEditColumnVisible = false">取 消</el-button>
+                  <el-button @click="dialogEditColumnVisible = false"
+                    >取 消</el-button
+                  >
                   <el-button type="primary" @click="editCol">确 定</el-button>
                 </span>
               </el-dialog>
@@ -186,10 +195,17 @@
               <el-dialog
                 title="修改项内容"
                 :visible.sync="dialogEditItemVisible"
-                width="50%">
-                <el-input type="textarea" v-model="newItemContent" placeholder="请输入项内容"></el-input>
+                width="50%"
+              >
+                <el-input
+                  type="textarea"
+                  v-model="newItemContent"
+                  placeholder="请输入项内容"
+                ></el-input>
                 <span slot="footer" class="dialog-footer">
-                  <el-button @click="dialogEditItemVisible = false">取 消</el-button>
+                  <el-button @click="dialogEditItemVisible = false"
+                    >取 消</el-button
+                  >
                   <el-button type="primary" @click="editItem">确 定</el-button>
                 </span>
               </el-dialog>
@@ -255,7 +271,11 @@
                         shadow="hover"
                         :key="itemIndex"
                       >
-                        <span class="todo-text" @dblclick="openEditItem(colIndex,itemIndex)">{{todoItem}}</span>
+                        <span
+                          class="todo-text"
+                          @dblclick="openEditItem(colIndex,itemIndex)"
+                          >{{todoItem}}</span
+                        >
                         <el-button
                           icon="el-icon-delete"
                           circle
