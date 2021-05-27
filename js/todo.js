@@ -47,7 +47,7 @@ let vue = new Vue({
   },
 
   created() {
-    let data = localStorage.getItem('data')
+    let data = localStorage.getItem('projects')
     if (data === null) {
       this.projects = [
         {
@@ -273,9 +273,16 @@ let vue = new Vue({
     },
     saveData() {
       let dataString = JSON.stringify(this.projects)
-      localStorage.setItem('data', dataString)
+      localStorage.setItem('projects', dataString)
       ELEMENT.Message({
         message: '保存成功',
+        type: 'success',
+      })
+    },
+    clearData() {
+      localStorage.removeItem('projects')
+      ELEMENT.Message({
+        message: '初始化成功',
         type: 'success',
       })
     },

@@ -354,7 +354,12 @@
                   <el-switch v-model="isAutoSave"></el-switch>
                 </el-form-item>
                 <el-form-item  label="初始化数据">
-                  <el-button>立即初始化</el-button>
+                  <el-popconfirm
+                    title="此操作将会清除你所有的数据，请确认是否初始化"
+                    @confirm="clearData"
+                  >
+                    <el-button slot="reference">立即初始化</el-button>
+                  </el-popconfirm>
                 </el-form-item>
               </el-form>
             </div>
@@ -391,13 +396,8 @@
                 </el-table-column>
                 <el-table-column label="操作" width="100">
                   <template slot-scope="scope">
-                    <el-button
-                      @click="handleClick(scope.row)"
-                      type="text"
-                      size="small"
-                      >查看</el-button
-                    >
                     <el-button type="text" size="small">编辑</el-button>
+                    <el-button type="text" size="small">删除</el-button>
                   </template>
                 </el-table-column>
               </el-table>
