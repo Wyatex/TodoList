@@ -170,6 +170,7 @@
               </el-popover>
             </div>
           </div>
+          <el-divider></el-divider>
           <div class="col-list">
             <div
               class="col-item"
@@ -192,23 +193,35 @@
                 </span>
               </el-dialog>
 
-              <el-dialog
+              <el-drawer
                 title="修改项内容"
-                :visible.sync="dialogEditItemVisible"
-                width="50%"
+                :visible.sync="drawerEditItemVisible"
+                direction="rtl"
+                size="30%"
               >
-                <el-input
-                  type="textarea"
-                  v-model="newItemContent"
-                  placeholder="请输入项内容"
-                ></el-input>
-                <span slot="footer" class="dialog-footer">
-                  <el-button @click="dialogEditItemVisible = false"
-                    >取 消</el-button
-                  >
-                  <el-button type="primary" @click="editItem">确 定</el-button>
-                </span>
-              </el-dialog>
+                <div
+                  style="
+                    margin: 20px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-end;
+                  "
+                >
+                  <el-input
+                    type="textarea"
+                    v-model="newTodo"
+                    placeholder="请输入项内容"
+                  ></el-input>
+                  <div style="margin-top: 30px">
+                    <el-button @click="drawerEditItemVisible = false"
+                      >取 消</el-button
+                    >
+                    <el-button type="primary" @click="editItem"
+                      >确 定</el-button
+                    >
+                  </div>
+                </div>
+              </el-drawer>
 
               <el-card shadow="hover">
                 <div
@@ -262,7 +275,12 @@
                     </el-form>
                   </el-card>
 
-                  <draggable v-model="item.item" group="todo-body" class="drag">
+                  <draggable
+                    v-model="item.item"
+                    group="todo-body"
+                    class="drag"
+                    @end="afterDragItem"
+                  >
                     <transition-group>
                       <el-card
                         v-for="(todoItem, itemIndex) in item.item"
@@ -327,7 +345,64 @@
           </div>
         </div>
         <div class="content-body setting" v-if="inSetting">
-          <el-card></el-card>
+          <div class="body">
+            <div class="setting-form">
+              <h2>系统设置</h2>
+              <el-divider></el-divider>
+              <el-form>
+                <el-form-item label="自动保存">
+                  <el-switch v-model="isAutoSave"></el-switch>
+                </el-form-item>
+                <el-form-item  label="初始化数据">
+                  <el-button>立即初始化</el-button>
+                </el-form-item>
+              </el-form>
+            </div>
+            <div class="projects-list">
+              <h2>项目列表</h2>
+              <el-divider></el-divider>
+              <el-table :data="projects" style="width: 100%">
+                <el-table-column prop="name" label="项目名称" width="120">
+                </el-table-column>
+                <el-table-column prop="desc" label="项目简介" width="180">
+                </el-table-column>
+                <el-table-column label="操作" width="100">
+                  <template slot-scope="scope">
+                    <el-button
+                      @click="handleSelect('2-' + (scope.$index + 1))"
+                      type="text"
+                      size="small"
+                      >查看</el-button
+                    >
+                    <el-button type="text" size="small">删除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+            <div class="template-list">
+              <h2>模板列表</h2>
+              <el-divider></el-divider>
+              <el-table :data="projectTemplate" style="width: 100%">
+                <el-table-column prop="label" label="模板名称" width="120">
+                </el-table-column>
+                <el-table-column prop="desc" label="模板介绍" width="200">
+                </el-table-column>
+                <el-table-column prop="value" label="模板简称" width="100">
+                </el-table-column>
+                <el-table-column label="操作" width="100">
+                  <template slot-scope="scope">
+                    <el-button
+                      @click="handleClick(scope.row)"
+                      type="text"
+                      size="small"
+                      >查看</el-button
+                    >
+                    <el-button type="text" size="small">编辑</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+          </div>
         </div>
       </div>
       <div class="footer"></div>

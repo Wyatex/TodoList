@@ -170,7 +170,23 @@ body {
   cursor: pointer;
 }
 
-.main-content .setting {
-    margin-top: 60px;
-    margin-left: 50px;
+.main-content .setting .body {
+  height: 100%;
+  margin-left: 50px;
+  margin-top: 90px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.main-content .setting .body .setting-form {
+  width: 300px;
+}
+
+.main-content .setting .body .projects-list {
+  margin-left: 100px;
+}
+
+.main-content .setting .body .template-list {
+  margin-left: 100px;
 }
