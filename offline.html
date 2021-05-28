@@ -333,7 +333,7 @@
                 <el-table-column label="操作" width="100">
                   <template slot-scope="scope">
                     <el-button type="text" size="small" @click="openEditTemplate(scope.$index)">编辑</el-button>
-                    <el-button type="text" size="small">删除</el-button>
+                    <el-button type="text" size="small" @click="delTemplate(scope.$index)">删除</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -392,7 +392,7 @@
               :label="'栏' + index"
               :key="index"
             >
-              <el-input v-model="column" style="width: 300px;margin-right: 20px;"></el-input><el-button @click.prevent="removeColumnInTemplateForm(index)">删除</el-button>
+              <el-input v-model="templateForm.columns[index]" style="width: 300px;margin-right: 20px;"></el-input><el-button @click.prevent="removeColumnInTemplateForm(index)">删除</el-button>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">

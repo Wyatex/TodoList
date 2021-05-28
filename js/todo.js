@@ -48,7 +48,7 @@ let vue = new Vue({
       this.projects = [
         {
           name: '默认项目',
-          desc: 'blahblahblah...',
+          desc: '这是默认创建的项目，可以点击右边的修改按钮进行修改',
           columns: [
             {
               name: '代办事项',
@@ -159,35 +159,27 @@ let vue = new Vue({
         return
       }
 
-      if (this.projectForm.template === 'basic') {
-        this.projects.push({
-          name: this.projectForm.name,
-          desc: this.projectForm.desc,
-          columns: [
-            {
-              name: '代办事项',
-              inAdding: false,
-              item: [],
-            },
-            {
-              name: '进行中',
-              inAdding: false,
-              item: [],
-            },
-            {
-              name: '已完成',
-              inAdding: false,
-              item: [],
-            },
-          ],
+      this.projects.push({
+        name: this.projectForm.name,
+        desc: this.projectForm.desc,
+        columns: [],
+      })
+
+      // 将模板的栏加入项目
+      let template = {}
+      this.template.some(item => {
+        if (item.value === this.projectForm.template) {
+          template = item
+        }
+      })
+      template.columns.forEach(item => {
+        this.projects[this.projects.length - 1].columns.push({
+          name: item,
+          inAdding: false,
+          item: [],
         })
-      } else if (this.projectForm.template === 'blank') {
-        this.projects.push({
-          name: this.projectForm.name,
-          desc: this.projectForm.desc,
-          columns: [],
-        })
-      }
+      })
+
       this.projectForm = {
         name: '',
         desc: '',
@@ -316,11 +308,47 @@ let vue = new Vue({
     newTemplate() {
 
     },
-    delTemplate() {
-
+    delTemplate(index) {
+      // 判断是否只剩下一个模板，如果是禁止删除
+      let templateHasOnlyOne = false
+      this.template.length === 1 ? templateHasOnlyOne = true : templateHasOnlyOne = false
+      if (templateHasOnlyOne) {
+        ELEMENT.Message({
+          message: '不能删除最后一个模板',
+          type: 'error',
+        })
+        return
+      }
+      this.template.splice(index, 1)
     },
     editTemplate() {
+      // 判断是否有空的栏名字
+      let hasEmptyName = false
+      for (let index = 0; index < this.templateForm.columns.length; index++) {
+        const element = this.templateForm.columns[index];
+        if (element === '') {
+          hasEmptyName = true
+          break
+        }
+      }
+      if (hasEmptyName) {
+        ELEMENT.Message({
+          message: '禁止使用空的栏名字',
+          type: 'error',
+        })
+        return
+      }
 
+      this.template[this.templateEditingIndex].value = this.templateForm.value
+      this.template[this.templateEditingIndex].label = this.templateForm.label
+      this.template[this.templateEditingIndex].desc = this.templateForm.desc
+      this.template[this.templateEditingIndex].columns = [...this.templateForm.columns]
+      ELEMENT.Message({
+        message: '修改模板成功',
+        type: 'success',
+      })
+      this.dialogEditTemplateVisible = false
+      this.autoSava()
     },
     removeColumnInTemplateForm(index) {
       this.templateForm.columns.splice(index, 1)

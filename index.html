@@ -15,7 +15,6 @@
       href="./css/index.css"
     />
     <!-- 引入组件库 -->
-    <!-- <script src="https://unpkg.com/ityped@1.0.3"></script> -->
     <script src="./js/ityped.js"></script>
     <script src="./js/vue.js"></script>
     <script src="./js/element.js"></script>
@@ -62,15 +61,21 @@
         <div class="main" v-if="inMain">
           <div class="title"><span>TodoList.io</span></div>
           <div class="discription"><span id="type"></span></div>
-          <a href="#" class="a" @click="toRegister">
-            <span class="useTodoList">注册并使用</span>
-          </a>
-          <a href="/TodoList/offline.html" class="a" style="margin-top: 3rem">
-            <span class="useTodoList">使用离线版</span>
-          </a>
-          <span style="margin-top: 2rem; color: #8590a6"
-            >离线版使用较新的PWA技术，需要使用Chrome70+或者FireFox70+的浏览器</span
-          >
+          <div class="nav-btn">
+            <a href="#" class="a" @click="toRegister" style="margin-right: 30px;">
+              <span class="useTodoList">注册并使用</span>
+            </a>
+            <a href="/TodoList/offline.html" class="a" style="margin-top: 3rem">
+              <el-popover
+                width="200"
+                trigger="hover"
+                placement="bottom"
+                content="如果需要离线版，建议使用新的Chrome内核浏览器，并安装到本地。"
+              >
+                <span class="useTodoList"  slot="reference">使用离线版</span>
+              </el-popover>
+            </a>
+          </div>
         </div>
       </transition>
       <transition name="fade">

@@ -1,5 +1,5 @@
 :root {
-  background-color: #f6f6f6;
+  background: linear-gradient(180deg, #fafafa 0%, #e6e6e6 70%, #c6c6c6 100%);
 }
 
 body {
@@ -79,11 +79,11 @@ body {
 .main .title {
   font-size: 6rem;
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-  margin-bottom: 3rem;
+  margin-bottom: 15rem;
 }
 
 .main .discription {
-  margin-bottom: 3rem;
+  margin-bottom: 4rem;
 }
 
 .main .discription span {
@@ -94,7 +94,7 @@ body {
 .main .useTodoList {
   border-radius: 5px;
   padding: 1rem;
-  background-color: #fff;
+  background-color: #fafafa;
   box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1);
   animation: btn-left 0.5s ease 1;
   animation-fill-mode: forwards;
