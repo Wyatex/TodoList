@@ -83,7 +83,7 @@
                     placeholder="选择模板"
                   >
                     <el-option
-                      v-for="item in projectTemplate"
+                      v-for="item in template"
                       :key="item.value"
                       :label="item.label"
                       :value="item.value"
@@ -174,55 +174,8 @@
           <div class="col-list">
             <div
               class="col-item"
-              v-for="(item,colIndex) in projects[currentProject].info"
+              v-for="(item,colIndex) in projects[currentProject].columns"
             >
-              <el-dialog
-                title="修改栏名称"
-                :visible.sync="dialogEditColumnVisible"
-                width="30%"
-              >
-                <el-input
-                  v-model="newColumnName"
-                  placeholder="请输入栏名称"
-                ></el-input>
-                <span slot="footer" class="dialog-footer">
-                  <el-button @click="dialogEditColumnVisible = false"
-                    >取 消</el-button
-                  >
-                  <el-button type="primary" @click="editCol">确 定</el-button>
-                </span>
-              </el-dialog>
-
-              <el-drawer
-                title="修改项内容"
-                :visible.sync="drawerEditItemVisible"
-                direction="rtl"
-                size="30%"
-              >
-                <div
-                  style="
-                    margin: 20px;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: flex-end;
-                  "
-                >
-                  <el-input
-                    type="textarea"
-                    v-model="newTodo"
-                    placeholder="请输入项内容"
-                  ></el-input>
-                  <div style="margin-top: 30px">
-                    <el-button @click="drawerEditItemVisible = false"
-                      >取 消</el-button
-                    >
-                    <el-button type="primary" @click="editItem"
-                      >确 定</el-button
-                    >
-                  </div>
-                </div>
-              </el-drawer>
-
               <el-card shadow="hover">
                 <div
                   slot="header"
@@ -234,7 +187,7 @@
                 >
                   <div class="title">
                     <h4 style="margin-block-start: 0; margin-block-end: 0">
-                      {{item.column}}
+                      {{item.name}}
                     </h4>
                   </div>
                   <div class="btn-menu">
@@ -310,7 +263,7 @@
               <el-card shadow="hover" style="height: 200px">
                 <div
                   class="add-column-inner"
-                  @click="dialogAddColumnVisible = true"
+                  @click="dialogAddColumnVisible = true;newColumnName=''"
                 >
                   <i
                     class="el-icon-circle-plus-outline"
@@ -318,28 +271,6 @@
                   ></i>
                   <span style="color: #888">添加栏</span>
                 </div>
-                <el-dialog
-                  title="添加栏"
-                  width="30%"
-                  :visible.sync="dialogAddColumnVisible"
-                >
-                  <el-form>
-                    <el-form-item label="栏名称">
-                      <el-input
-                        v-model="newColumnName"
-                        autocomplete="off"
-                      ></el-input>
-                    </el-form-item>
-                  </el-form>
-                  <div slot="footer" class="dialog-footer">
-                    <el-button @click="dialogAddColumnVisible = false"
-                      >取 消</el-button
-                    >
-                    <el-button type="primary" @click="addColumn"
-                      >确 定</el-button
-                    >
-                  </div>
-                </el-dialog>
               </el-card>
             </div>
           </div>
@@ -353,7 +284,7 @@
                 <el-form-item label="自动保存">
                   <el-switch v-model="isAutoSave"></el-switch>
                 </el-form-item>
-                <el-form-item  label="初始化数据">
+                <el-form-item label="初始化数据">
                   <el-popconfirm
                     title="此操作将会清除你所有的数据，请确认是否初始化"
                     @confirm="clearData"
@@ -379,7 +310,12 @@
                       size="small"
                       >查看</el-button
                     >
-                    <el-button type="text" size="small">删除</el-button>
+                    <el-button
+                      type="text"
+                      size="small"
+                      @click="delProject(scope.$index)"
+                      >删除</el-button
+                    >
                   </template>
                 </el-table-column>
               </el-table>
@@ -387,7 +323,7 @@
             <div class="template-list">
               <h2>模板列表</h2>
               <el-divider></el-divider>
-              <el-table :data="projectTemplate" style="width: 100%">
+              <el-table :data="template" style="width: 100%">
                 <el-table-column prop="label" label="模板名称" width="120">
                 </el-table-column>
                 <el-table-column prop="desc" label="模板介绍" width="200">
@@ -396,7 +332,7 @@
                 </el-table-column>
                 <el-table-column label="操作" width="100">
                   <template slot-scope="scope">
-                    <el-button type="text" size="small">编辑</el-button>
+                    <el-button type="text" size="small" @click="openEditTemplate(scope.$index)">编辑</el-button>
                     <el-button type="text" size="small">删除</el-button>
                   </template>
                 </el-table-column>
@@ -406,6 +342,94 @@
         </div>
       </div>
       <div class="footer"></div>
+      <div class="dialogs">
+        <el-dialog
+          title="修改栏名称"
+          :visible.sync="dialogEditColumnVisible"
+          width="30%"
+        >
+          <el-input
+            v-model="newColumnName"
+            placeholder="请输入栏名称"
+          ></el-input>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogEditColumnVisible = false"
+              >取 消</el-button
+            >
+            <el-button type="primary" @click="editCol">确 定</el-button>
+          </span>
+        </el-dialog>
+
+        <el-dialog
+          title="添加栏"
+          width="30%"
+          :visible.sync="dialogAddColumnVisible"
+        >
+          <el-form>
+            <el-form-item label="栏名称">
+              <el-input v-model="newColumnName" autocomplete="off"></el-input>
+            </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogAddColumnVisible = false">取 消</el-button>
+            <el-button type="primary" @click="addColumn">确 定</el-button>
+          </div>
+        </el-dialog>
+
+        <el-dialog title="修改模板" :visible.sync="dialogEditTemplateVisible">
+          <el-form>
+            <el-form-item label="模板名称">
+              <el-input v-model="templateForm.label" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="模板简介">
+              <el-input v-model="templateForm.desc" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="模板代号(建议用英文)">
+              <el-input v-model="templateForm.value" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item
+              v-for="(column, index) in templateForm.columns"
+              :label="'栏' + index"
+              :key="index"
+            >
+              <el-input v-model="column" style="width: 300px;margin-right: 20px;"></el-input><el-button @click.prevent="removeColumnInTemplateForm(index)">删除</el-button>
+            </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogEditTemplateVisible = false">取 消</el-button>
+            <el-button @click="templateForm.columns.push('')">添加栏模板</el-button>
+            <el-button type="primary" @click="editTemplate()">确 定</el-button>
+          </div>
+        </el-dialog>
+
+        <el-drawer
+          title="修改项内容"
+          :visible.sync="drawerEditItemVisible"
+          direction="rtl"
+          size="30%"
+        >
+          <div
+            style="
+              margin: 20px;
+              display: flex;
+              flex-direction: column;
+              align-items: flex-end;
+            "
+          >
+            <el-input
+              type="textarea"
+              v-model="newTodo"
+              placeholder="请输入项内容"
+            ></el-input>
+            <div style="margin-top: 30px">
+              <el-button @click="drawerEditItemVisible = false"
+                >取 消</el-button
+              >
+              <el-button type="primary" @click="editItem">确 定</el-button>
+            </div>
+          </div>
+        </el-drawer>
+      </div>
     </div>
     <script src="./js/todo.js"></script>
   </body>

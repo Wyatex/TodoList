@@ -3,7 +3,7 @@ let vue = new Vue({
   data: {
     isCollapse: true,                       // 是否收起菜单
     menuBtnStatus: '展开菜单',              // 展开或收起菜单按钮文字
-    isAutoSave: true,                      // 是否自动保存
+    isAutoSave: true,                       // 是否自动保存
     inAdding: false,                        // 是否在添加项目界面
     inTodo: true,                           // 是否在项目todo界面
     inSetting: false,                       // 是否在设置界面
@@ -12,50 +12,46 @@ let vue = new Vue({
     newTodo: '',                            // 新item内容
     newColumnName: '',                      // 新栏名称
     columnEditingIndex: 0,                  // 编辑栏时栏的序号
-    itemEditingIndex: {                     // 编辑item时栏和item的序号
-      colIndex: 0,
-      itemIndex: 0,
-    },
     dialogAddColumnVisible: false,          // 是否打开创建新栏对话框
     dialogEditColumnVisible: false,         // 是否打开编辑栏对话框
+    dialogEditTemplateVisible: false,       // 是否打开编辑模板对话框
     drawerEditItemVisible: false,           // 是否打开item编辑界面
     isEditProjectTitle: false,              // 是否打开项目编辑气泡框
     editProject: {                          // 编辑项目的信息
       name: '',
       desc: '',
     },
-    projectTemplate: [                      // 项目模板
-      {
-        value: 'blank',
-        label: '空白看板',
-        desc: '从一个完全空白的项目板开始，您可以自己添加列和进行设置。',
-        column: [],
-      },
-      {
-        value: 'basic',
-        label: '基本的看板',
-        desc: '基本的看板：选择这个模板，将会默认添加：”代办事项“、”进行中“和“完成”三列。',
-        column: ['代办事项', '进行中', '完成'],
-      },
-    ],
+    itemEditingIndex: {                     // 编辑item时栏和item的序号
+      colIndex: 0,
+      itemIndex: 0,
+    },
+    templateEditingIndex: 0,                // 编辑模板的序号
     projectForm: {                          // 新建项目的信息
       name: '',
       desc: '',
       template: '',
     },
+    templateForm: {                         // 修改或创建模板的信息
+      value: '',                            // 模板的值（用于创建项目时选择）
+      label: '',                            // 模板名称
+      desc: '',                             // 模板描述
+      columns: [],                          // 模板默认用于的栏
+    },
     projects: [],                           // 所有的项目信息
+    template: [],                           // 项目模板
   },
 
   created() {
-    let data = localStorage.getItem('projects')
-    if (data === null) {
+    // 加载
+    let projects = localStorage.getItem('projects')
+    if (projects === null) {
       this.projects = [
         {
           name: '默认项目',
           desc: 'blahblahblah...',
-          info: [
+          columns: [
             {
-              column: '代办事项',
+              name: '代办事项',
               inAdding: false,
               item: [
                 '点击添加项添加代办事项到本栏',
@@ -63,7 +59,7 @@ let vue = new Vue({
               ],
             },
             {
-              column: '进行中',
+              name: '进行中',
               inAdding: false,
               item: [
                 '长按卡片可以拖动到其他的栏',
@@ -72,7 +68,7 @@ let vue = new Vue({
               ],
             },
             {
-              column: '已完成',
+              name: '已完成',
               inAdding: false,
               item: [
                 '点击上方的修改项目信息可对项目的名称、简介进行修改'
@@ -81,9 +77,29 @@ let vue = new Vue({
           ],
         },
       ]
-      return
+    } else {
+      this.projects = JSON.parse(projects)
     }
-    this.projects = JSON.parse(data)
+    // 加载模板
+    let template = localStorage.getItem('template')
+    if (template === null) {
+      this.template = [
+        {
+          value: 'blank',
+          label: '空白看板',
+          desc: '从一个完全空白的项目板开始，您可以自己添加列和进行设置。',
+          columns: [],
+        },
+        {
+          value: 'basic',
+          label: '基本的看板',
+          desc: '基本的看板：选择这个模板，将会默认添加：”代办事项“、”进行中“和“完成”三列。',
+          columns: ['代办事项', '进行中', '完成'],
+        },
+      ]
+    } else {
+      this.template = JSON.parse(template)
+    }
   },
 
   methods: {
@@ -126,23 +142,40 @@ let vue = new Vue({
         })
         return
       }
+
+      // 判断是否存在该项目
+      let ifExist = false
+      this.projects.some(project => {
+        if (this.projectForm.name === project.name) {
+          ifExist = true
+          return true
+        }
+      })
+      if (ifExist) {
+        ELEMENT.Message({
+          message: '已存在同名项目',
+          type: 'error',
+        })
+        return
+      }
+
       if (this.projectForm.template === 'basic') {
         this.projects.push({
           name: this.projectForm.name,
           desc: this.projectForm.desc,
-          info: [
+          columns: [
             {
-              column: '代办事项',
+              name: '代办事项',
               inAdding: false,
               item: [],
             },
             {
-              column: '进行中',
+              name: '进行中',
               inAdding: false,
               item: [],
             },
             {
-              column: '已完成',
+              name: '已完成',
               inAdding: false,
               item: [],
             },
@@ -152,7 +185,7 @@ let vue = new Vue({
         this.projects.push({
           name: this.projectForm.name,
           desc: this.projectForm.desc,
-          info: [],
+          columns: [],
         })
       }
       this.projectForm = {
@@ -176,10 +209,22 @@ let vue = new Vue({
       this.autoSava()
     },
     delProject(index) {
-      //todo
+      // 如果只剩下一个项目不允许删除
+      if (this.projects.length === 1) {
+        ELEMENT.Message({
+          message: '这是最后一个项目，不允许删除，请添加新的再删除本项目',
+          type: 'error',
+        })
+        return
+      }
+      this.projects.splice(index, 1)
+      ELEMENT.Message({
+        message: '删除成功',
+        type: 'success',
+      })
     },
     toAddItem(index) {
-      this.projects[this.currentProject].info[index].inAdding = true
+      this.projects[this.currentProject].columns[index].inAdding = true
     },
     addColumn() {
       if (this.newColumnName === '') {
@@ -189,8 +234,8 @@ let vue = new Vue({
         })
         return
       }
-      this.projects[this.currentProject].info.push({
-        column: this.newColumnName,
+      this.projects[this.currentProject].columns.push({
+        name: this.newColumnName,
         inAdding: false,
         item: [],
       })
@@ -200,8 +245,8 @@ let vue = new Vue({
       this.autoSava()
     },
     delCol(colIndex) {
-      let name = this.projects[this.currentProject].info[colIndex].column
-      this.projects[this.currentProject].info.splice(colIndex, 1)
+      let name = this.projects[this.currentProject].columns[colIndex].name
+      this.projects[this.currentProject].columns.splice(colIndex, 1)
       ELEMENT.Message({
         message: `栏目 ${name} 删除成功`,
         type: 'success',
@@ -210,8 +255,8 @@ let vue = new Vue({
       this.autoSava()
     },
     clearCol(colIndex) {
-      let name = this.projects[this.currentProject].info[colIndex].column
-      this.projects[this.currentProject].info[colIndex].item = []
+      let name = this.projects[this.currentProject].columns[colIndex].name
+      this.projects[this.currentProject].columns[colIndex].item = []
       ELEMENT.Message({
         message: `栏目 ${name} 清空成功`,
         type: 'success',
@@ -220,12 +265,12 @@ let vue = new Vue({
       this.autoSava()
     },
     openEditCol(colIndex) {
-      this.newColumnName = this.projects[this.currentProject].info[colIndex].column
+      this.newColumnName = this.projects[this.currentProject].columns[colIndex].name
       this.dialogEditColumnVisible = true
       this.columnEditingIndex = colIndex
     },
     editCol() {
-      this.projects[this.currentProject].info[this.columnEditingIndex].column = this.newColumnName
+      this.projects[this.currentProject].columns[this.columnEditingIndex].name = this.newColumnName
       this.newColumnName = ''
       this.dialogEditColumnVisible = false
 
@@ -239,14 +284,14 @@ let vue = new Vue({
         })
         return
       }
-      this.projects[this.currentProject].info[index].item.push(this.newTodo)
-      this.projects[this.currentProject].info[index].inAdding = false
+      this.projects[this.currentProject].columns[index].item.push(this.newTodo)
+      this.projects[this.currentProject].columns[index].inAdding = false
       this.newTodo = ''
 
       this.autoSava()
     },
     delItem(colIndex, itemIndex) {
-      this.projects[this.currentProject].info[colIndex].item.splice(
+      this.projects[this.currentProject].columns[colIndex].item.splice(
         itemIndex,
         1
       )
@@ -256,11 +301,11 @@ let vue = new Vue({
     openEditItem(colIndex,itemIndex) {
       this.itemEditingIndex.colIndex = colIndex
       this.itemEditingIndex.itemIndex = itemIndex
-      this.newTodo = this.projects[this.currentProject].info[colIndex].item[itemIndex]
+      this.newTodo = this.projects[this.currentProject].columns[colIndex].item[itemIndex]
       this.drawerEditItemVisible = true
     },
     editItem() {
-      this.projects[this.currentProject].info[this.itemEditingIndex.colIndex].item[this.itemEditingIndex.itemIndex] = this.newTodo
+      this.projects[this.currentProject].columns[this.itemEditingIndex.colIndex].item[this.itemEditingIndex.itemIndex] = this.newTodo
       this.drawerEditItemVisible = false
 
       this.autoSava()
@@ -268,12 +313,31 @@ let vue = new Vue({
     afterDragItem() {
       this.autoSava()
     },
-    logData() {
-      console.log(this.projects)
+    newTemplate() {
+
+    },
+    delTemplate() {
+
+    },
+    editTemplate() {
+
+    },
+    removeColumnInTemplateForm(index) {
+      this.templateForm.columns.splice(index, 1)
+    },
+    openEditTemplate(index) {
+      this.templateEditingIndex = index
+      this.templateForm.value = this.template[index].value
+      this.templateForm.desc = this.template[index].desc
+      this.templateForm.label = this.template[index].label
+      this.templateForm.columns = [...this.template[index].columns]
+      this.dialogEditTemplateVisible = true
     },
     saveData() {
       let dataString = JSON.stringify(this.projects)
       localStorage.setItem('projects', dataString)
+      dataString = JSON.stringify(this.template)
+      localStorage.setItem('template', dataString)
       ELEMENT.Message({
         message: '保存成功',
         type: 'success',
@@ -281,10 +345,12 @@ let vue = new Vue({
     },
     clearData() {
       localStorage.removeItem('projects')
+      localStorage.removeItem('template')
       ELEMENT.Message({
         message: '初始化成功',
         type: 'success',
       })
+      location.reload()
     },
     async autoSava() {
       // 根据设置判断是否自动保存
