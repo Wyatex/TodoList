@@ -5,6 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>简单的Todo-List</title>
+    <!-- PWA清单 -->
+    <link rel="manifest" href="manifest.json">
     <!-- 引入样式 -->
     <link rel="stylesheet" href="./css/element.css" />
     <link rel="stylesheet" href="./css/todo.css" />
@@ -282,7 +284,7 @@
               <el-divider></el-divider>
               <el-form>
                 <el-form-item label="自动保存">
-                  <el-switch v-model="isAutoSave"></el-switch>
+                  <el-switch v-model="isAutoSave" @change="switchAutoSave"></el-switch>
                 </el-form-item>
                 <el-form-item label="初始化数据">
                   <el-popconfirm
@@ -321,7 +323,7 @@
               </el-table>
             </div>
             <div class="template-list">
-              <h2>模板列表</h2>
+              <h2>模板列表 <i class="el-icon-circle-plus-outline" @click="openAddTemplate" style="cursor: pointer;"></i></h2>
               <el-divider></el-divider>
               <el-table :data="template" style="width: 100%">
                 <el-table-column prop="label" label="模板名称" width="120">
@@ -402,6 +404,32 @@
           </div>
         </el-dialog>
 
+        <el-dialog title="添加模板" :visible.sync="dialogAddTemplateVisible">
+          <el-form>
+            <el-form-item label="模板名称">
+              <el-input v-model="templateForm.label" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="模板简介">
+              <el-input v-model="templateForm.desc" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="模板代号(建议用英文)">
+              <el-input v-model="templateForm.value" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item
+              v-for="(column, index) in templateForm.columns"
+              :label="'栏' + index"
+              :key="index"
+            >
+              <el-input v-model="templateForm.columns[index]" style="width: 300px;margin-right: 20px;"></el-input><el-button @click.prevent="removeColumnInTemplateForm(index)">删除</el-button>
+            </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogAddTemplateVisible = false">取 消</el-button>
+            <el-button @click="templateForm.columns.push('')">添加栏模板</el-button>
+            <el-button type="primary" @click="addTemplate">确 定</el-button>
+          </div>
+        </el-dialog>
+
         <el-drawer
           title="修改项内容"
           :visible.sync="drawerEditItemVisible"
@@ -432,5 +460,17 @@
       </div>
     </div>
     <script src="./js/todo.js"></script>
+    <script>
+      // pwa
+      window.addEventListener('load', () => {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('./js/sw.js').then( res => {
+            console.log(res)
+          }).catch( err => {
+            console.log(err)
+          })
+        }
+      })
+    </script>
   </body>
 </html>

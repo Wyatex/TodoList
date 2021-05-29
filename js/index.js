@@ -1,6 +1,9 @@
 let vm = null
 let vue = new Vue({
     el: '#app',
+    directives: {
+		typed: vueTyped
+	},
     data: {
         topNav: '介绍',
         inMain: true,
@@ -91,21 +94,6 @@ let vue = new Vue({
         },
     },
 })
-
-function typeInit() {
-ityped.init('#type', {
-    strings: [
-    '这是一个简洁的TodoList应用',
-    '但是并不简陋',
-    '点击下面按钮开始使用吧',
-    '或者点击左上方的介绍查看使用方法',
-    ],
-    startDelay: 500,
-    backDelay: 1000,
-    loop: true,
-})
-}
-typeInit()
 
 let SEPARATION = 100,
 AMOUNTX = 50,

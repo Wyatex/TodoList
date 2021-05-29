@@ -1,0 +1,7 @@
+{
+    "name": "简洁好用的Todo List",
+    "short_name": "TodoList",
+    "display": "standalone",
+    "start_url": "/offline.html",
+    "theme_color": "#fefefe"
+  }

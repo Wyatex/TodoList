@@ -15,6 +15,7 @@ let vue = new Vue({
     dialogAddColumnVisible: false,          // 是否打开创建新栏对话框
     dialogEditColumnVisible: false,         // 是否打开编辑栏对话框
     dialogEditTemplateVisible: false,       // 是否打开编辑模板对话框
+    dialogAddTemplateVisible: false,        // 是否打开添加模板对话框
     drawerEditItemVisible: false,           // 是否打开item编辑界面
     isEditProjectTitle: false,              // 是否打开项目编辑气泡框
     editProject: {                          // 编辑项目的信息
@@ -42,9 +43,41 @@ let vue = new Vue({
   },
 
   created() {
-    // 加载
+    // 加载项目
     let projects = localStorage.getItem('projects')
     if (projects === null) {
+      this.initProjects()
+    } else {
+      this.projects = JSON.parse(projects)
+    }
+    // 加载模板
+    let template = localStorage.getItem('template')
+    if (template === null) {
+      this.initTemplate()
+    } else {
+      this.template = JSON.parse(template)
+    }
+    // 是否自动保存
+    let isAutoSave = localStorage.getItem('autoSave')
+    console.log(isAutoSave)
+    if (isAutoSave === null) {
+      this.isAutoSave = true
+    } else {
+      this.isAutoSave = JSON.parse(isAutoSave)
+    }
+  },
+
+  methods: {
+    collapse() {
+      if (this.isCollapse === true) {
+        this.isCollapse = false
+        this.menuBtnStatus = '收起菜单'
+      } else {
+        this.isCollapse = true
+        this.menuBtnStatus = '展开菜单'
+      }
+    },
+    initProjects() {
       this.projects = [
         {
           name: '默认项目',
@@ -77,12 +110,8 @@ let vue = new Vue({
           ],
         },
       ]
-    } else {
-      this.projects = JSON.parse(projects)
-    }
-    // 加载模板
-    let template = localStorage.getItem('template')
-    if (template === null) {
+    },
+    initTemplate() {
       this.template = [
         {
           value: 'blank',
@@ -97,20 +126,6 @@ let vue = new Vue({
           columns: ['代办事项', '进行中', '完成'],
         },
       ]
-    } else {
-      this.template = JSON.parse(template)
-    }
-  },
-
-  methods: {
-    collapse() {
-      if (this.isCollapse === true) {
-        this.isCollapse = false
-        this.menuBtnStatus = '收起菜单'
-      } else {
-        this.isCollapse = true
-        this.menuBtnStatus = '展开菜单'
-      }
     },
     handleSelect(key, keyPath) {
       if (key === '1') {
@@ -305,8 +320,18 @@ let vue = new Vue({
     afterDragItem() {
       this.autoSava()
     },
-    newTemplate() {
-
+    addTemplate() {
+      this.template.push(this.templateForm)
+      this.dialogAddTemplateVisible = false
+    },
+    openAddTemplate() {
+      this.templateForm = {
+        value: '',
+        label: '',
+        desc: '',
+        columns: [],
+      }
+      this.dialogAddTemplateVisible = true
     },
     delTemplate(index) {
       // 判断是否只剩下一个模板，如果是禁止删除
@@ -362,23 +387,30 @@ let vue = new Vue({
       this.dialogEditTemplateVisible = true
     },
     saveData() {
-      let dataString = JSON.stringify(this.projects)
-      localStorage.setItem('projects', dataString)
-      dataString = JSON.stringify(this.template)
-      localStorage.setItem('template', dataString)
-      ELEMENT.Message({
-        message: '保存成功',
-        type: 'success',
-      })
+      setTimeout(() => {
+        let dataString = JSON.stringify(this.projects)
+        localStorage.setItem('projects', dataString)
+        dataString = JSON.stringify(this.template)
+        localStorage.setItem('template', dataString)
+        localStorage.setItem('autoSave', this.isAutoSave.toString())
+        ELEMENT.Message({
+          message: '保存成功',
+          type: 'success',
+        })
+      }, 200)
     },
     clearData() {
       localStorage.removeItem('projects')
       localStorage.removeItem('template')
+      localStorage.removeItem('autoSave')
       ELEMENT.Message({
         message: '初始化成功',
         type: 'success',
       })
       location.reload()
+    },
+    switchAutoSave() {
+      localStorage.setItem('autoSave', this.isAutoSave.toString())
     },
     async autoSava() {
       // 根据设置判断是否自动保存
