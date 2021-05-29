@@ -1,0 +1,462 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>简单的Todo-List</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="./css/element.css" />
+    <link rel="stylesheet" href="./css/todo.css" />
+    <!-- 引入组件库 -->
+    <script src="./js/vue.js"></script>
+    <script src="./js/element.js"></script>
+    <script src="./js/sortable.js"></script>
+    <script src="./js/vuedraggable.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <div class="header">
+        <div class="header-inner">
+          <div class="top-nav">
+            <div class="logo"><span>Todo List</span></div>
+            <div class="nav-btn">
+              <el-button type="text" @click="collapse"
+                >{{menuBtnStatus}}</el-button
+              >
+            </div>
+            <div class="nav-btn">
+              <el-button type="text" @click="saveData">保存</el-button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="main-content">
+        <div class="navbar">
+          <el-menu
+            class="el-menu-vertical-demo"
+            :collapse="isCollapse"
+            default-active="2-1"
+            @select="handleSelect"
+          >
+            <el-menu-item index="1" class="top-menu-item">
+              <i class="el-icon-circle-plus"></i>
+              <span slot="title">添加计划</span>
+            </el-menu-item>
+            <el-submenu index="2">
+              <template slot="title">
+                <i class="el-icon-menu"></i>
+                <span slot="title">已有计划</span>
+              </template>
+              <el-menu-item
+                v-for="(item, index) in projects"
+                :index="`2-${index+1}`"
+                >{{item.name}}</el-menu-item
+              >
+            </el-submenu>
+            <el-menu-item index="3">
+              <i class="el-icon-s-tools"></i>
+              <span slot="title">设置</span>
+            </el-menu-item>
+          </el-menu>
+        </div>
+        <div class="content-body addProject" v-if="inAdding">
+          <div class="addingBody">
+            <div class="title">
+              <h3>创建一个新的项目栏</h3>
+              <span>通过一个计划项目，协调、跟踪、更新你的工作。</span>
+            </div>
+            <div class="form-data">
+              <el-form>
+                <el-form-item label="项目面板名">
+                  <el-input v-model="projectForm.name"></el-input>
+                </el-form-item>
+                <el-form-item label="项目描述">
+                  <el-input
+                    type="textarea"
+                    v-model="projectForm.desc"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="选择模板">
+                  <el-select
+                    v-model="projectForm.template"
+                    placeholder="选择模板"
+                  >
+                    <el-option
+                      v-for="item in template"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                      style="width: 500px; height: auto"
+                    >
+                      <h4
+                        style="
+                          height: 10px;
+                          margin-block-start: 0;
+                          margin-block-end: 1.2rem;
+                        "
+                      >
+                        {{item.label}}
+                      </h4>
+                      <span
+                        style="
+                          display: block;
+                          white-space: normal;
+                          line-height: 20px;
+                        "
+                        >{{item.desc}}</span
+                      >
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item class="btnDiv">
+                  <el-button type="primary" @click="addProject"
+                    >立即创建</el-button
+                  >
+                </el-form-item>
+              </el-form>
+            </div>
+          </div>
+        </div>
+        <div class="content-body todo-body" v-if="inTodo">
+          <div class="title">
+            <div class="title-info">
+              <h3
+                style="
+                  margin-block-start: 0;
+                  margin-block-end: 1rem;
+                  display: block;
+                "
+              >
+                {{projects[currentProject]['name']}}
+              </h3>
+              <span>{{projects[currentProject]['desc']}}</span>
+            </div>
+            <div class="edit-title">
+              <el-popover
+                width="300"
+                trigger="click"
+                placement="bottom"
+                v-model="isEditProjectTitle"
+              >
+                <p>请在下面的输入框中修改。</p>
+                <el-input
+                  v-model="editProject.name"
+                  placeholder="请输入项目名"
+                ></el-input>
+                <el-input
+                  v-model="editProject.desc"
+                  type="textarea"
+                  placeholder="请输入描述"
+                  style="margin-top: 1rem"
+                ></el-input>
+                <div style="text-align: right; margin: 1rem 0 0 0">
+                  <el-button
+                    size="mini"
+                    type="text"
+                    @click="isEditProjectTitle = false"
+                    >取消</el-button
+                  >
+                  <el-button type="primary" size="mini" @click="editProjectTile"
+                    >确定</el-button
+                  >
+                </div>
+                <el-button
+                  slot="reference"
+                  style="border-radius: 20px"
+                  @click="openEditProjectTile"
+                  >修改项目信息</el-button
+                >
+              </el-popover>
+            </div>
+          </div>
+          <el-divider></el-divider>
+          <div class="col-list">
+            <div
+              class="col-item"
+              v-for="(item,colIndex) in projects[currentProject].columns"
+            >
+              <el-card shadow="hover">
+                <div
+                  slot="header"
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                  "
+                >
+                  <div class="title">
+                    <h4 style="margin-block-start: 0; margin-block-end: 0">
+                      {{item.name}}
+                    </h4>
+                  </div>
+                  <div class="btn-menu">
+                    <el-dropdown
+                      split-button
+                      size="mini"
+                      @click="toAddItem(colIndex)"
+                    >
+                      添加项
+                      <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item @click.native="openEditCol(colIndex)"
+                          >修改栏</el-dropdown-item
+                        >
+                        <el-dropdown-item @click.native="delCol(colIndex)"
+                          >删除栏</el-dropdown-item
+                        >
+                        <el-dropdown-item @click.native="clearCol(colIndex)"
+                          >清空栏</el-dropdown-item
+                        >
+                      </el-dropdown-menu>
+                    </el-dropdown>
+                  </div>
+                </div>
+                <div class="todo-list">
+                  <el-card shadow="hover" v-if="item.inAdding" class="add-card">
+                    <el-form>
+                      <el-form-item>
+                        <el-input v-model="newTodo" type="textarea"></el-input>
+                      </el-form-item>
+                      <el-form-item style="display: flex">
+                        <el-button type="primary" @click="addItem(colIndex)">
+                          添加
+                        </el-button>
+                        <el-button @click="item.inAdding = false">
+                          取消
+                        </el-button>
+                      </el-form-item>
+                    </el-form>
+                  </el-card>
+
+                  <draggable
+                    v-model="item.item"
+                    group="todo-body"
+                    class="drag"
+                    @end="afterDragItem"
+                  >
+                    <transition-group>
+                      <el-card
+                        v-for="(todoItem, itemIndex) in item.item"
+                        class="todo-item"
+                        :body-style="{width: '100%', display: 'flex', justifyContent: 'flex-start',height: 'auto'}"
+                        shadow="hover"
+                        :key="itemIndex"
+                      >
+                        <span
+                          class="todo-text"
+                          @dblclick="openEditItem(colIndex,itemIndex)"
+                          >{{todoItem}}</span
+                        >
+                        <el-button
+                          icon="el-icon-delete"
+                          circle
+                          style="height: 40px; margin-left: 5px"
+                          @click="delItem(colIndex, itemIndex)"
+                        ></el-button>
+                      </el-card>
+                    </transition-group>
+                  </draggable>
+                </div>
+              </el-card>
+            </div>
+            <div class="add-col">
+              <el-card shadow="hover" style="height: 200px">
+                <div
+                  class="add-column-inner"
+                  @click="dialogAddColumnVisible = true;newColumnName=''"
+                >
+                  <i
+                    class="el-icon-circle-plus-outline"
+                    style="font-size: 60px; color: #888"
+                  ></i>
+                  <span style="color: #888">添加栏</span>
+                </div>
+              </el-card>
+            </div>
+          </div>
+        </div>
+        <div class="content-body setting" v-if="inSetting">
+          <div class="body">
+            <div class="setting-form">
+              <h2>系统设置</h2>
+              <el-divider></el-divider>
+              <el-form>
+                <el-form-item label="自动保存">
+                  <el-switch v-model="isAutoSave" @change="switchAutoSave"></el-switch>
+                </el-form-item>
+                <el-form-item label="初始化数据">
+                  <el-popconfirm
+                    title="此操作将会清除你所有的数据，请确认是否初始化"
+                    @confirm="clearData"
+                  >
+                    <el-button slot="reference">立即初始化</el-button>
+                  </el-popconfirm>
+                </el-form-item>
+              </el-form>
+            </div>
+            <div class="projects-list">
+              <h2>项目列表</h2>
+              <el-divider></el-divider>
+              <el-table :data="projects" style="width: 100%">
+                <el-table-column prop="name" label="项目名称" width="120">
+                </el-table-column>
+                <el-table-column prop="desc" label="项目简介" width="180">
+                </el-table-column>
+                <el-table-column label="操作" width="100">
+                  <template slot-scope="scope">
+                    <el-button
+                      @click="handleSelect('2-' + (scope.$index + 1))"
+                      type="text"
+                      size="small"
+                      >查看</el-button
+                    >
+                    <el-button
+                      type="text"
+                      size="small"
+                      @click="delProject(scope.$index)"
+                      >删除</el-button
+                    >
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+            <div class="template-list">
+              <h2>模板列表 <i class="el-icon-circle-plus-outline" @click="openAddTemplate" style="cursor: pointer;"></i></h2>
+              <el-divider></el-divider>
+              <el-table :data="template" style="width: 100%">
+                <el-table-column prop="label" label="模板名称" width="120">
+                </el-table-column>
+                <el-table-column prop="desc" label="模板介绍" width="200">
+                </el-table-column>
+                <el-table-column prop="value" label="模板简称" width="100">
+                </el-table-column>
+                <el-table-column label="操作" width="100">
+                  <template slot-scope="scope">
+                    <el-button type="text" size="small" @click="openEditTemplate(scope.$index)">编辑</el-button>
+                    <el-button type="text" size="small" @click="delTemplate(scope.$index)">删除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer"></div>
+      <div class="dialogs">
+        <el-dialog
+          title="修改栏名称"
+          :visible.sync="dialogEditColumnVisible"
+          width="30%"
+        >
+          <el-input
+            v-model="newColumnName"
+            placeholder="请输入栏名称"
+          ></el-input>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogEditColumnVisible = false"
+              >取 消</el-button
+            >
+            <el-button type="primary" @click="editCol">确 定</el-button>
+          </span>
+        </el-dialog>
+
+        <el-dialog
+          title="添加栏"
+          width="30%"
+          :visible.sync="dialogAddColumnVisible"
+        >
+          <el-form>
+            <el-form-item label="栏名称">
+              <el-input v-model="newColumnName" autocomplete="off"></el-input>
+            </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogAddColumnVisible = false">取 消</el-button>
+            <el-button type="primary" @click="addColumn">确 定</el-button>
+          </div>
+        </el-dialog>
+
+        <el-dialog title="修改模板" :visible.sync="dialogEditTemplateVisible">
+          <el-form>
+            <el-form-item label="模板名称">
+              <el-input v-model="templateForm.label" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="模板简介">
+              <el-input v-model="templateForm.desc" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="模板代号(建议用英文)">
+              <el-input v-model="templateForm.value" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item
+              v-for="(column, index) in templateForm.columns"
+              :label="'栏' + index"
+              :key="index"
+            >
+              <el-input v-model="templateForm.columns[index]" style="width: 300px;margin-right: 20px;"></el-input><el-button @click.prevent="removeColumnInTemplateForm(index)">删除</el-button>
+            </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogEditTemplateVisible = false">取 消</el-button>
+            <el-button @click="templateForm.columns.push('')">添加栏模板</el-button>
+            <el-button type="primary" @click="editTemplate()">确 定</el-button>
+          </div>
+        </el-dialog>
+
+        <el-dialog title="添加模板" :visible.sync="dialogAddTemplateVisible">
+          <el-form>
+            <el-form-item label="模板名称">
+              <el-input v-model="templateForm.label" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="模板简介">
+              <el-input v-model="templateForm.desc" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="模板代号(建议用英文)">
+              <el-input v-model="templateForm.value" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item
+              v-for="(column, index) in templateForm.columns"
+              :label="'栏' + index"
+              :key="index"
+            >
+              <el-input v-model="templateForm.columns[index]" style="width: 300px;margin-right: 20px;"></el-input><el-button @click.prevent="removeColumnInTemplateForm(index)">删除</el-button>
+            </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogAddTemplateVisible = false">取 消</el-button>
+            <el-button @click="templateForm.columns.push('')">添加栏模板</el-button>
+            <el-button type="primary" @click="addTemplate">确 定</el-button>
+          </div>
+        </el-dialog>
+
+        <el-drawer
+          title="修改项内容"
+          :visible.sync="drawerEditItemVisible"
+          direction="rtl"
+          size="30%"
+        >
+          <div
+            style="
+              margin: 20px;
+              display: flex;
+              flex-direction: column;
+              align-items: flex-end;
+            "
+          >
+            <el-input
+              type="textarea"
+              v-model="newTodo"
+              placeholder="请输入项内容"
+            ></el-input>
+            <div style="margin-top: 30px">
+              <el-button @click="drawerEditItemVisible = false"
+                >取 消</el-button
+              >
+              <el-button type="primary" @click="editItem">确 定</el-button>
+            </div>
+          </div>
+        </el-drawer>
+      </div>
+    </div>
+    <script src="./js/todo.js"></script>
+  </body>
+</html>
